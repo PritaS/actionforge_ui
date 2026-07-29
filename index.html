@@ -247,6 +247,42 @@
       border-color: var(--danger);
       color: var(--danger);
     }
+    .pitch {
+      border-color: var(--accent-soft);
+      background:
+        radial-gradient(circle at top left, rgba(79,156,255,0.14), transparent 60%),
+        var(--bg-alt);
+    }
+    .pitch p.lead {
+      color: var(--text);
+      font-size: 1.05rem;
+      max-width: 52rem;
+      margin-bottom: 1rem;
+    }
+    .pitch-points {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(15rem, 1fr));
+      gap: 0.75rem;
+      margin-top: 1rem;
+    }
+    .pitch-point {
+      border: 1px solid var(--border);
+      border-radius: 0.75rem;
+      padding: 0.75rem 0.9rem;
+      background: rgba(255,255,255,0.02);
+    }
+    .pitch-point strong {
+      display: block;
+      font-size: 0.8rem;
+      text-transform: uppercase;
+      letter-spacing: 0.1em;
+      color: var(--accent);
+      margin-bottom: 0.3rem;
+    }
+    .pitch-point span {
+      color: var(--muted);
+      font-size: 0.9rem;
+    }
     .faq-item {
       margin-bottom: 0.9rem;
     }
@@ -271,6 +307,7 @@
       <span>ActionForge</span>
     </div>
     <nav class="nav-links">
+      <a href="#pitch">Pitch</a>
       <a href="#overview">Overview</a>
       <a href="#auth">Auth</a>
       <a href="#endpoints">API Reference</a>
@@ -318,6 +355,36 @@ Authorization: Bearer &lt;api-key&gt;
   "workerId": "opaque-id",
   "ready": true
 }</code></pre>
+    </div>
+  </section>
+
+  <section id="pitch" class="pitch">
+    <h2>The Pitch <span class="section-tag">Why ActionForge exists</span></h2>
+    <p class="lead">
+      ActionForge is a dynamic execution engine that allows AI agents to autonomously write,
+      deploy, and invoke their own custom micro‑tools in real time. By leveraging secure
+      Cloudflare V8 isolates and the Model Context Protocol, it eliminates the developer
+      bottleneck of manually hard‑coding API integrations. Ultimately, it provides the highly
+      scalable, sandboxed infrastructure required to turn static LLMs into truly autonomous,
+      self‑tooling systems.
+    </p>
+    <div class="pitch-points">
+      <div class="pitch-point">
+        <strong>Self‑tooling agents</strong>
+        <span>Agents write, deploy, and invoke their own micro‑tools at run time — no redeploy, no human in the loop.</span>
+      </div>
+      <div class="pitch-point">
+        <strong>Sandboxed by design</strong>
+        <span>Every tool runs in a secure Cloudflare V8 isolate, so untrusted generated code stays contained.</span>
+      </div>
+      <div class="pitch-point">
+        <strong>MCP‑native</strong>
+        <span>Tools surface through the Model Context Protocol, so any MCP‑aware agent can discover and call them.</span>
+      </div>
+      <div class="pitch-point">
+        <strong>No integration bottleneck</strong>
+        <span>Stop hand‑coding API wrappers; a JSON Schema contract is the whole integration.</span>
+      </div>
     </div>
   </section>
 
