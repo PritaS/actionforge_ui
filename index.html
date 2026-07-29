@@ -313,9 +313,10 @@ Authorization: Bearer &lt;api-key&gt;
 {
   "toolId": "UUID",
   "toolName": "LoanPaymentCalculator",
-  "proxyUrl": "https://api.actionforge.com/api/invoke/&lt;toolId&gt;",
+  "proxyUrl": "https://YOUR-DEPLOYMENT.example.com/api/invoke/&lt;toolId&gt;",
   "createdAt": "2026-07-29T11:47:00Z",
-  "deployment": "opaque-id"
+  "workerId": "opaque-id",
+  "ready": true
 }</code></pre>
     </div>
   </section>
@@ -372,7 +373,7 @@ Authorization: Bearer &lt;api-key&gt;
         <tr><th>Field</th><th>Type</th><th>Constraints</th></tr>
       </thead>
       <tbody>
-        <tr><td>toolName</td><td>string</td><td>1–128 chars, <code>^[A-Za-z0-9_\- ]+$</code>, unique</td></tr>
+        <tr><td>toolName</td><td>string</td><td>1–128 chars, <code>^[A-Za-z0-9_\- ]+$</code>, unique across the deployment — a collision returns <code>409</code></td></tr>
         <tr><td>description</td><td>string</td><td>1–4000 chars</td></tr>
         <tr><td>inputSchema</td><td>object</td><td>Valid JSON Schema</td></tr>
         <tr><td>outputSchema</td><td>object</td><td>Valid JSON Schema</td></tr>
@@ -382,11 +383,18 @@ Authorization: Bearer &lt;api-key&gt;
     <pre><code>{
   "toolId": "UUID",
   "toolName": "LoanPaymentCalculator",
-  "proxyUrl": "https://api.actionforge.com/api/invoke/c2b1c2d0-9e4f-4a8b-9f6b-4c9a2e7f1234",
+  "proxyUrl": "https://YOUR-DEPLOYMENT.example.com/api/invoke/c2b1c2d0-9e4f-4a8b-9f6b-4c9a2e7f1234",
   "createdAt": "2026-07-29T11:47:00Z",
-  "deployment": "opaque-string-not-to-be-parsed"
+  "workerId": "opaque-string-not-to-be-parsed",
+  "ready": false
 }</code></pre>
-    <p><strong>Note:</strong> <code>deployment</code> is opaque. Do not parse or rely on its format.</p>
+    <p><strong>Note:</strong> <code>workerId</code> is opaque. Do not parse or rely on its format.</p>
+    <p><strong><code>ready</code> is load-bearing.</strong> <code>false</code> means the
+    tool deployed successfully but its edge route is still propagating — usually
+    seconds, sometimes a few minutes. Invoking it before the route resolves returns
+    <code>503</code> with <code>Retry-After</code>, which is <em>not</em> a fault in
+    your tool. Either wait for <code>ready</code> or retry on <code>503</code>; see
+    the <a href="#agents">Agent Guide</a>.</p>
     <h4>Errors</h4>
     <table>
       <thead>
@@ -395,7 +403,9 @@ Authorization: Bearer &lt;api-key&gt;
       <tbody>
         <tr><td>400</td><td>Malformed JSON, missing/invalid fields, or invalid JSON Schema</td></tr>
         <tr><td>401</td><td>Missing or invalid API key</td></tr>
+        <tr><td>409</td><td><code>toolName</code> already in use — names are unique; choose another. Retrying will not help.</td></tr>
         <tr><td>429</td><td>Rate limited</td></tr>
+        <tr><td>503</td><td>A dependency is unavailable. Transient — retry after <code>Retry-After</code>.</td></tr>
         <tr><td>500</td><td>Tool could not be created</td></tr>
       </tbody>
     </table>
@@ -419,6 +429,10 @@ Authorization: Bearer &lt;api-key&gt;
   },
   "executionMs": 87
 }</code></pre>
+    <p><code>executionMs</code> is wall-clock time for the whole invocation,
+    including the network round trip to the tool — not tool CPU time alone.</p>
+    <p>If a tool’s <code>outputSchema</code> declares something other than an object
+    (an array, or a scalar), the value is wrapped: <code>"result": { "value": … }</code>.</p>
     <h4>Errors</h4>
     <table>
       <thead>
@@ -429,9 +443,13 @@ Authorization: Bearer &lt;api-key&gt;
         <tr><td>401</td><td>Missing or invalid API key</td></tr>
         <tr><td>404</td><td>No such tool</td></tr>
         <tr><td>429</td><td>Rate limited</td></tr>
-        <tr><td>502</td><td>Tool failed to execute or output mismatched <code>outputSchema</code></td></tr>
+        <tr><td>502</td><td>Tool failed to execute, or its output did not match <code>outputSchema</code></td></tr>
+        <tr><td>503</td><td><strong>Retryable.</strong> The tool’s route has not propagated yet (see <code>ready</code>), or a dependency is unavailable. Carries <code>Retry-After</code>.</td></tr>
       </tbody>
     </table>
+    <p><strong>502 vs 503.</strong> 502 means the tool ran and misbehaved — a real
+    fault worth surfacing. 503 means it has not run yet and you should come back.
+    Treating them alike is the most common integration mistake.</p>
   </section>
 
   <section id="quickstart">
@@ -459,7 +477,7 @@ Authorization: Bearer &lt;api-key&gt;
 }</code></pre>
 
     <h3>2. Register the tool (curl)</h3>
-    <pre><code>curl -X POST https://api.actionforge.com/api/generate-tool \
+    <pre><code>curl -X POST https://YOUR-DEPLOYMENT.example.com/api/generate-tool \
   -H "Authorization: Bearer $ACTIONFORGE_KEY" \
   -H "Content-Type: application/json" \
   -d '{
@@ -484,7 +502,7 @@ Authorization: Bearer &lt;api-key&gt;
   }'</code></pre>
 
     <h3>3. Invoke the tool (curl)</h3>
-    <pre><code>curl -X POST https://api.actionforge.com/api/invoke/c2b1c2d0-9e4f-4a8b-9f6b-4c9a2e7f1234 \
+    <pre><code>curl -X POST https://YOUR-DEPLOYMENT.example.com/api/invoke/c2b1c2d0-9e4f-4a8b-9f6b-4c9a2e7f1234 \
   -H "Authorization: Bearer $ACTIONFORGE_KEY" \
   -H "Content-Type: application/json" \
   -d '{
@@ -495,7 +513,7 @@ Authorization: Bearer &lt;api-key&gt;
 
     <h3>4. Invoke from TypeScript</h3>
     <pre><code>const res = await fetch(
-  "https://api.actionforge.com/api/invoke/c2b1c2d0-9e4f-4a8b-9f6b-4c9a2e7f1234",
+  "https://YOUR-DEPLOYMENT.example.com/api/invoke/c2b1c2d0-9e4f-4a8b-9f6b-4c9a2e7f1234",
   {
     method: "POST",
     headers: {
@@ -542,10 +560,17 @@ console.log("Monthly payment:", data.result.monthlyPayment);</code></pre>
 }</code></pre>
 
     <h3>Agent invocation wrapper</h3>
+    <p>Two status codes are <strong>retryable</strong> and both carry
+    <code>Retry-After</code>: <code>429</code> (out of quota) and <code>503</code>
+    (route still propagating, or a dependency is down). Everything else is terminal.
+    Cap the attempts, and never trust <code>Retry-After</code> to be present —
+    <code>Number(null)</code> is <code>NaN</code>, and <code>setTimeout(NaN)</code>
+    fires immediately, turning a backoff into a tight loop.</p>
     <pre><code>async function invokeActionForgeTool&lt;TInput, TOutput&gt;(
   tool: ActionForgeTool,
   payload: TInput,
-  apiKey: string
+  apiKey: string,
+  attempt = 0
 ): Promise&lt;TOutput&gt; {
   const res = await fetch(tool.proxyUrl, {
     method: "POST",
@@ -556,10 +581,11 @@ console.log("Monthly payment:", data.result.monthlyPayment);</code></pre>
     body: JSON.stringify(payload)
   });
 
-  if (res.status === 429) {
-    const retryAfter = Number(res.headers.get("Retry-After"));
-    await new Promise(r =&gt; setTimeout(r, retryAfter * 1000));
-    return invokeActionForgeTool(tool, payload, apiKey);
+  if ((res.status === 429 || res.status === 503) &amp;&amp; attempt &lt; 5) {
+    const hinted = Number(res.headers.get("Retry-After"));
+    const waitS = Number.isFinite(hinted) &amp;&amp; hinted &gt; 0 ? hinted : 2 ** attempt;
+    await new Promise(r =&gt; setTimeout(r, Math.min(waitS, 60) * 1000));
+    return invokeActionForgeTool(tool, payload, apiKey, attempt + 1);
   }
 
   if (!res.ok) {
@@ -569,6 +595,19 @@ console.log("Monthly payment:", data.result.monthlyPayment);</code></pre>
   const data = await res.json();
   return data.result as TOutput;
 }</code></pre>
+    <p>Note the 429 window is an hour, so a genuinely exhausted quota can report a
+    <code>Retry-After</code> of up to 3600. Cap the wait (above: 60s) and let the
+    outer loop decide, rather than parking an agent for an hour inside one call.</p>
+
+    <h3>Registering from an agent</h3>
+    <p>If your agent registers its own tools, honour <code>ready</code> rather than
+    invoking immediately:</p>
+    <pre><code>const created = await registerTool(definition);   // POST /api/generate-tool
+
+if (!created.ready) {
+  // The route is still propagating. Either poll the invoke endpoint until it
+  // stops returning 503, or defer this tool and carry on with other work.
+}</code></pre>
 
     <h3>Error‑aware reasoning</h3>
     <table>
@@ -577,11 +616,13 @@ console.log("Monthly payment:", data.result.monthlyPayment);</code></pre>
       </thead>
       <tbody>
         <tr><td>400</td><td>Payload invalid → revise plan using <code>inputSchema</code></td></tr>
-        <tr><td>401</td><td>Authentication failure → request new key</td></tr>
+        <tr><td>401</td><td>Authentication failure → request new key. Consumes no quota.</td></tr>
         <tr><td>404</td><td>Tool missing → remove from registry</td></tr>
+        <tr><td>409</td><td>Name taken → rename and re-register. Do <em>not</em> retry as-is.</td></tr>
         <tr><td>429</td><td>Rate limit → backoff and retry after <code>Retry-After</code></td></tr>
         <tr><td>500</td><td>Tool creation failed → notify developer</td></tr>
-        <tr><td>502</td><td>Output mismatched <code>outputSchema</code> → adjust expectations or escalate</td></tr>
+        <tr><td>502</td><td>Tool ran but its output mismatched <code>outputSchema</code> → adjust expectations or escalate</td></tr>
+        <tr><td>503</td><td>Tool not ready yet, or a dependency is down → <strong>retry</strong>, do not conclude the tool is broken</td></tr>
       </tbody>
     </table>
   </section>
@@ -638,7 +679,7 @@ console.log("Monthly payment:", data.result.monthlyPayment);</code></pre>
   ],
   "variable": [
     { "key": "apiKey", "value": "" },
-    { "key": "baseUrl", "value": "https://api.actionforge.com" },
+    { "key": "baseUrl", "value": "https://YOUR-DEPLOYMENT.example.com" },
     { "key": "toolId", "value": "" }
   ]
 }</code></pre>
@@ -670,6 +711,8 @@ console.log("Monthly payment:", data.result.monthlyPayment);</code></pre>
       <h3>Why does <code>outputSchema</code> matter?</h3>
       <p>
         ActionForge validates the tool’s output against <code>outputSchema</code>. If it doesn’t match, the call fails with <code>502 Bad Gateway</code>.
+        Tool responses are treated as untrusted: a tool that returns the wrong shape produces
+        an error rather than a payload that quietly violates the contract you were handed.
       </p>
     </div>
 
@@ -685,14 +728,44 @@ console.log("Monthly payment:", data.result.monthlyPayment);</code></pre>
         </tbody>
       </table>
       <p>
-        Exceeding either returns <code>429 Too Many Requests</code> with a <code>Retry-After</code> header and <code>retryAfter</code> field.
-        All requests, including failed ones, count against quota.
+        Exceeding either returns <code>429 Too Many Requests</code> with a <code>Retry-After</code> header and <code>retryAfter</code> field,
+        plus <code>x-ratelimit-limit</code> and <code>x-ratelimit-remaining</code> headers.
+      </p>
+      <p>
+        Authenticated requests count against quota <strong>even when they fail</strong> —
+        a 400 or a 404 still costs you. Unauthenticated requests (401) do not, because
+        quota is per key and there is no key to charge.
+      </p>
+      <p>
+        Windows are <strong>aligned to the clock hour</strong>, not to your first request.
+        A key that first calls at 10:59 gets a full quota again at 11:00, so
+        <code>retryAfter</code> can be anywhere from 1 to 3600 seconds.
+      </p>
+    </div>
+
+    <div class="faq-item">
+      <h3>Why did my tool return 503 right after I created it?</h3>
+      <p>
+        Because it is not reachable yet. A newly registered tool is deployed to the edge,
+        and its route takes a moment to propagate — usually seconds, occasionally a few
+        minutes. Until it resolves, invocations return <code>503</code> with
+        <code>Retry-After</code>.
+      </p>
+      <p>
+        The <code>ready</code> field on the registration response tells you which case
+        you are in. <code>ready: true</code> means go; <code>ready: false</code> means
+        wait or retry. This is the single most important thing to handle when an agent
+        registers a tool and immediately wants to use it.
       </p>
     </div>
 
     <div class="faq-item">
       <h3>What is <code>executionMs</code>?</h3>
-      <p>The time the tool took to execute, in milliseconds. No specific accuracy guarantees are defined in the contract.</p>
+      <p>
+        Wall-clock time for the whole invocation, in milliseconds, <em>including</em> the
+        network round trip to the tool — not tool CPU time alone. No specific accuracy
+        guarantees are defined in the contract.
+      </p>
     </div>
 
     <div class="faq-item">
