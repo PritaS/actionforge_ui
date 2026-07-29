@@ -1,0 +1,719 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>ActionForge — Developer Docs</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <style>
+    :root {
+      --bg: #0b1020;
+      --bg-alt: #11182a;
+      --accent: #4f9cff;
+      --accent-soft: rgba(79, 156, 255, 0.12);
+      --text: #f5f7ff;
+      --muted: #9aa4c6;
+      --border: #1f2940;
+      --code-bg: #050814;
+      --danger: #ff6b81;
+    }
+    * {
+      box-sizing: border-box;
+    }
+    body {
+      margin: 0;
+      font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      background: radial-gradient(circle at top, #182544 0, #050814 55%, #02030a 100%);
+      color: var(--text);
+      line-height: 1.6;
+    }
+    a {
+      color: var(--accent);
+      text-decoration: none;
+    }
+    a:hover {
+      text-decoration: underline;
+    }
+    header {
+      border-bottom: 1px solid var(--border);
+      background: linear-gradient(120deg, rgba(79,156,255,0.12), transparent);
+      position: sticky;
+      top: 0;
+      z-index: 20;
+      backdrop-filter: blur(12px);
+    }
+    .nav {
+      max-width: 1120px;
+      margin: 0 auto;
+      padding: 0.75rem 1.5rem;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+    .nav-title {
+      font-weight: 600;
+      letter-spacing: 0.04em;
+      text-transform: uppercase;
+      font-size: 0.9rem;
+      display: flex;
+      align-items: center;
+      gap: 0.4rem;
+    }
+    .nav-title span.logo-dot {
+      width: 10px;
+      height: 10px;
+      border-radius: 999px;
+      background: var(--accent);
+      box-shadow: 0 0 12px rgba(79,156,255,0.8);
+    }
+    .nav-links {
+      display: flex;
+      gap: 1rem;
+      font-size: 0.9rem;
+      flex-wrap: wrap;
+    }
+    .nav-links a {
+      padding: 0.25rem 0.5rem;
+      border-radius: 999px;
+      background: transparent;
+      border: 1px solid transparent;
+    }
+    .nav-links a:hover {
+      border-color: var(--accent-soft);
+      background: rgba(255,255,255,0.02);
+    }
+    main {
+      max-width: 1120px;
+      margin: 0 auto;
+      padding: 2rem 1.5rem 3rem;
+    }
+    .hero {
+      display: grid;
+      grid-template-columns: minmax(0, 2.2fr) minmax(0, 1.8fr);
+      gap: 2rem;
+      align-items: center;
+      margin-bottom: 2.5rem;
+    }
+    @media (max-width: 900px) {
+      .hero {
+        grid-template-columns: minmax(0, 1fr);
+      }
+    }
+    .hero-title {
+      font-size: 2.4rem;
+      font-weight: 650;
+      letter-spacing: 0.02em;
+      margin-bottom: 0.75rem;
+    }
+    .hero-subtitle {
+      color: var(--muted);
+      max-width: 32rem;
+      font-size: 0.98rem;
+    }
+    .hero-badges {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.5rem;
+      margin-top: 1rem;
+    }
+    .badge {
+      font-size: 0.75rem;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      padding: 0.25rem 0.6rem;
+      border-radius: 999px;
+      border: 1px solid var(--border);
+      background: rgba(255,255,255,0.02);
+      color: var(--muted);
+    }
+    .badge.accent {
+      border-color: var(--accent);
+      background: var(--accent-soft);
+      color: var(--accent);
+    }
+    .hero-card {
+      border-radius: 1rem;
+      border: 1px solid var(--border);
+      background: radial-gradient(circle at top left, rgba(79,156,255,0.18), transparent 55%);
+      padding: 1.25rem 1.25rem 1.5rem;
+      box-shadow: 0 18px 40px rgba(0,0,0,0.45);
+    }
+    .hero-card h2 {
+      font-size: 1rem;
+      text-transform: uppercase;
+      letter-spacing: 0.12em;
+      color: var(--muted);
+      margin-top: 0;
+      margin-bottom: 0.75rem;
+    }
+    .hero-card pre {
+      margin: 0;
+      background: var(--code-bg);
+      border-radius: 0.75rem;
+      padding: 0.75rem;
+      font-size: 0.8rem;
+      overflow-x: auto;
+      border: 1px solid #151a2b;
+    }
+    section {
+      margin-bottom: 2.5rem;
+      padding: 1.5rem 1.25rem;
+      border-radius: 1rem;
+      border: 1px solid var(--border);
+      background: rgba(9,14,30,0.9);
+    }
+    section:nth-of-type(odd) {
+      background: var(--bg-alt);
+    }
+    section h2 {
+      margin-top: 0;
+      font-size: 1.3rem;
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+    section h2 span.section-tag {
+      font-size: 0.7rem;
+      text-transform: uppercase;
+      letter-spacing: 0.12em;
+      color: var(--muted);
+    }
+    h3 {
+      margin-top: 1.25rem;
+      font-size: 1.05rem;
+    }
+    p {
+      margin: 0.4rem 0 0.8rem;
+      color: var(--muted);
+      font-size: 0.95rem;
+    }
+    ul, ol {
+      margin: 0.4rem 0 0.8rem 1.2rem;
+      color: var(--muted);
+      font-size: 0.95rem;
+    }
+    li {
+      margin-bottom: 0.25rem;
+    }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin: 0.75rem 0 1rem;
+      font-size: 0.9rem;
+    }
+    th, td {
+      border: 1px solid var(--border);
+      padding: 0.4rem 0.5rem;
+      text-align: left;
+    }
+    th {
+      background: rgba(255,255,255,0.02);
+      font-weight: 500;
+    }
+    code {
+      font-family: "SF Mono", Menlo, Monaco, Consolas, "Liberation Mono", monospace;
+      font-size: 0.85rem;
+      background: rgba(255,255,255,0.04);
+      padding: 0.1rem 0.25rem;
+      border-radius: 0.25rem;
+    }
+    pre code {
+      background: transparent;
+      padding: 0;
+    }
+    pre {
+      background: var(--code-bg);
+      border-radius: 0.75rem;
+      padding: 0.75rem;
+      overflow-x: auto;
+      border: 1px solid #151a2b;
+      font-size: 0.85rem;
+      margin: 0.5rem 0 1rem;
+    }
+    .pill-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.4rem;
+      margin-top: 0.4rem;
+    }
+    .pill {
+      font-size: 0.75rem;
+      padding: 0.2rem 0.5rem;
+      border-radius: 999px;
+      border: 1px solid var(--border);
+      color: var(--muted);
+      background: rgba(255,255,255,0.02);
+    }
+    .pill.danger {
+      border-color: var(--danger);
+      color: var(--danger);
+    }
+    .faq-item {
+      margin-bottom: 0.9rem;
+    }
+    .faq-item h3 {
+      margin-bottom: 0.2rem;
+    }
+    footer {
+      max-width: 1120px;
+      margin: 0 auto;
+      padding: 0 1.5rem 2rem;
+      color: var(--muted);
+      font-size: 0.8rem;
+      border-top: 1px solid var(--border);
+    }
+  </style>
+</head>
+<body>
+<header>
+  <div class="nav">
+    <div class="nav-title">
+      <span class="logo-dot"></span>
+      <span>ActionForge</span>
+    </div>
+    <nav class="nav-links">
+      <a href="#overview">Overview</a>
+      <a href="#auth">Auth</a>
+      <a href="#endpoints">API Reference</a>
+      <a href="#quickstart">Quickstart</a>
+      <a href="#agents">Agent Guide</a>
+      <a href="#postman">Postman</a>
+      <a href="#faq">FAQ</a>
+    </nav>
+  </div>
+</header>
+
+<main>
+  <section class="hero">
+    <div>
+      <div class="hero-title">ActionForge Developer Docs</div>
+      <div class="hero-subtitle">
+        Define tools with JSON Schema. Get a URL. POST input. Receive validated output.
+        Built for AI agents and external developers who need strict contracts.
+      </div>
+      <div class="hero-badges">
+        <span class="badge accent">HTTP + JSON</span>
+        <span class="badge">Schema‑first</span>
+        <span class="badge">Agent‑ready</span>
+        <span class="badge">Hosted tools</span>
+      </div>
+    </div>
+    <div class="hero-card">
+      <h2>Quick glance</h2>
+      <pre><code>POST /api/generate-tool
+Authorization: Bearer &lt;api-key&gt;
+
+{
+  "toolName": "LoanPaymentCalculator",
+  "description": "Computes monthly loan payments.",
+  "inputSchema": { ... },
+  "outputSchema": { ... }
+}
+
+201 Created
+{
+  "toolId": "UUID",
+  "toolName": "LoanPaymentCalculator",
+  "proxyUrl": "https://api.actionforge.com/api/invoke/&lt;toolId&gt;",
+  "createdAt": "2026-07-29T11:47:00Z",
+  "deployment": "opaque-id"
+}</code></pre>
+    </div>
+  </section>
+
+  <section id="overview">
+    <h2>Overview <span class="section-tag">What ActionForge does</span></h2>
+    <p>
+      ActionForge is a hosted service for defining and running custom tools.
+      You describe a tool’s inputs and outputs as JSON Schema, register it, and receive a URL.
+      POSTing a payload to that URL runs the tool and returns a result that matches the declared output schema.
+    </p>
+    <h3>When to use ActionForge</h3>
+    <ul>
+      <li>Expose custom logic as a simple HTTP endpoint with strict contracts.</li>
+      <li>Give AI agents typed tools with predictable input/output shapes.</li>
+      <li>Enforce validation on both requests and responses.</li>
+      <li>Chain tools together in workflows using schemas as the source of truth.</li>
+    </ul>
+    <div class="pill-row">
+      <span class="pill">Not a workflow engine</span>
+      <span class="pill">Not a job queue</span>
+      <span class="pill">Tool definition + invocation only</span>
+    </div>
+  </section>
+
+  <section id="auth">
+    <h2>Authentication <span class="section-tag">Key handling</span></h2>
+    <p>Every request to ActionForge must include a bearer token:</p>
+    <pre><code>Authorization: Bearer &lt;api-key&gt;</code></pre>
+    <ul>
+      <li>Keys are issued by the service operator.</li>
+      <li>Keys can be revoked; revoked keys immediately stop working.</li>
+      <li>Treat keys as secrets:
+        <ul>
+          <li>Do not commit them to source control.</li>
+          <li>Do not log or echo them.</li>
+          <li>Do not place them in URLs.</li>
+        </ul>
+      </li>
+    </ul>
+    <div class="pill-row">
+      <span class="pill danger">Never log your API key</span>
+      <span class="pill">Use env vars (e.g., process.env.ACTIONFORGE_KEY)</span>
+    </div>
+  </section>
+
+  <section id="endpoints">
+    <h2>Endpoint Reference <span class="section-tag">Contract only</span></h2>
+
+    <h3>POST /api/generate-tool</h3>
+    <p>Registers a new tool.</p>
+    <table>
+      <thead>
+        <tr><th>Field</th><th>Type</th><th>Constraints</th></tr>
+      </thead>
+      <tbody>
+        <tr><td>toolName</td><td>string</td><td>1–128 chars, <code>^[A-Za-z0-9_\- ]+$</code>, unique</td></tr>
+        <tr><td>description</td><td>string</td><td>1–4000 chars</td></tr>
+        <tr><td>inputSchema</td><td>object</td><td>Valid JSON Schema</td></tr>
+        <tr><td>outputSchema</td><td>object</td><td>Valid JSON Schema</td></tr>
+      </tbody>
+    </table>
+    <h4>201 Created</h4>
+    <pre><code>{
+  "toolId": "UUID",
+  "toolName": "LoanPaymentCalculator",
+  "proxyUrl": "https://api.actionforge.com/api/invoke/c2b1c2d0-9e4f-4a8b-9f6b-4c9a2e7f1234",
+  "createdAt": "2026-07-29T11:47:00Z",
+  "deployment": "opaque-string-not-to-be-parsed"
+}</code></pre>
+    <p><strong>Note:</strong> <code>deployment</code> is opaque. Do not parse or rely on its format.</p>
+    <h4>Errors</h4>
+    <table>
+      <thead>
+        <tr><th>Status</th><th>Meaning</th></tr>
+      </thead>
+      <tbody>
+        <tr><td>400</td><td>Malformed JSON, missing/invalid fields, or invalid JSON Schema</td></tr>
+        <tr><td>401</td><td>Missing or invalid API key</td></tr>
+        <tr><td>429</td><td>Rate limited</td></tr>
+        <tr><td>500</td><td>Tool could not be created</td></tr>
+      </tbody>
+    </table>
+
+    <h3>POST /api/invoke/[toolId]</h3>
+    <p>Invokes a previously registered tool.</p>
+    <table>
+      <thead>
+        <tr><th>Parameter</th><th>Type</th><th>Constraints</th></tr>
+      </thead>
+      <tbody>
+        <tr><td>toolId (path)</td><td>string</td><td>Must be a valid UUID</td></tr>
+      </tbody>
+    </table>
+    <p>The request body is validated against the tool’s registered <code>inputSchema</code>.</p>
+    <h4>200 OK</h4>
+    <pre><code>{
+  "toolId": "c2b1c2d0-9e4f-4a8b-9f6b-4c9a2e7f1234",
+  "result": {
+    "monthlyPayment": 1342.05
+  },
+  "executionMs": 87
+}</code></pre>
+    <h4>Errors</h4>
+    <table>
+      <thead>
+        <tr><th>Status</th><th>Meaning</th></tr>
+      </thead>
+      <tbody>
+        <tr><td>400</td><td>Non‑UUID id, malformed JSON, or payload failing <code>inputSchema</code></td></tr>
+        <tr><td>401</td><td>Missing or invalid API key</td></tr>
+        <tr><td>404</td><td>No such tool</td></tr>
+        <tr><td>429</td><td>Rate limited</td></tr>
+        <tr><td>502</td><td>Tool failed to execute or output mismatched <code>outputSchema</code></td></tr>
+      </tbody>
+    </table>
+  </section>
+
+  <section id="quickstart">
+    <h2>Quickstart <span class="section-tag">First tool in minutes</span></h2>
+    <p>We’ll build a <strong>Loan Payment Calculator</strong> tool and call it from curl and TypeScript.</p>
+
+    <h3>1. Define schemas</h3>
+    <p><strong>Input schema</strong>:</p>
+    <pre><code>{
+  "type": "object",
+  "required": ["principal", "annualRate", "years"],
+  "properties": {
+    "principal": { "type": "number", "minimum": 0 },
+    "annualRate": { "type": "number", "minimum": 0 },
+    "years": { "type": "number", "minimum": 1 }
+  }
+}</code></pre>
+    <p><strong>Output schema</strong>:</p>
+    <pre><code>{
+  "type": "object",
+  "required": ["monthlyPayment"],
+  "properties": {
+    "monthlyPayment": { "type": "number" }
+  }
+}</code></pre>
+
+    <h3>2. Register the tool (curl)</h3>
+    <pre><code>curl -X POST https://api.actionforge.com/api/generate-tool \
+  -H "Authorization: Bearer $ACTIONFORGE_KEY" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "toolName": "LoanPaymentCalculator",
+    "description": "Computes monthly loan payments using standard amortization.",
+    "inputSchema": {
+      "type": "object",
+      "required": ["principal", "annualRate", "years"],
+      "properties": {
+        "principal": { "type": "number", "minimum": 0 },
+        "annualRate": { "type": "number", "minimum": 0 },
+        "years": { "type": "number", "minimum": 1 }
+      }
+    },
+    "outputSchema": {
+      "type": "object",
+      "required": ["monthlyPayment"],
+      "properties": {
+        "monthlyPayment": { "type": "number" }
+      }
+    }
+  }'</code></pre>
+
+    <h3>3. Invoke the tool (curl)</h3>
+    <pre><code>curl -X POST https://api.actionforge.com/api/invoke/c2b1c2d0-9e4f-4a8b-9f6b-4c9a2e7f1234 \
+  -H "Authorization: Bearer $ACTIONFORGE_KEY" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "principal": 250000,
+    "annualRate": 5.0,
+    "years": 30
+  }'</code></pre>
+
+    <h3>4. Invoke from TypeScript</h3>
+    <pre><code>const res = await fetch(
+  "https://api.actionforge.com/api/invoke/c2b1c2d0-9e4f-4a8b-9f6b-4c9a2e7f1234",
+  {
+    method: "POST",
+    headers: {
+      "Authorization": `Bearer ${process.env.ACTIONFORGE_KEY}`,
+      "Content-Type": "application/json"
+    },
+    body: JSON.stringify({
+      principal: 250000,
+      annualRate: 5.0,
+      years: 30
+    })
+  }
+);
+
+if (!res.ok) {
+  throw new Error(`Invocation failed: ${res.status}`);
+}
+
+const data = await res.json();
+console.log("Monthly payment:", data.result.monthlyPayment);</code></pre>
+  </section>
+
+  <section id="agents">
+    <h2>Agent Integration Guide <span class="section-tag">Agentic systems</span></h2>
+    <p>
+      ActionForge is designed for AI agents that need strict, typed tools.
+      Agents can treat each tool as a deterministic capability with JSON‑Schema‑defined inputs and outputs.
+    </p>
+
+    <h3>Agent phases</h3>
+    <ol>
+      <li><strong>Tool registration</strong> — done by developers via <code>/api/generate-tool</code>.</li>
+      <li><strong>Tool discovery</strong> — agents receive <code>toolId</code>, <code>toolName</code>, <code>proxyUrl</code>, and schemas.</li>
+      <li><strong>Tool invocation</strong> — agents POST payloads to <code>proxyUrl</code> and consume validated results.</li>
+    </ol>
+
+    <h3>Capability registry</h3>
+    <pre><code>interface ActionForgeTool {
+  toolId: string;
+  toolName: string;
+  proxyUrl: string;
+  inputSchema: any;
+  outputSchema: any;
+}</code></pre>
+
+    <h3>Agent invocation wrapper</h3>
+    <pre><code>async function invokeActionForgeTool&lt;TInput, TOutput&gt;(
+  tool: ActionForgeTool,
+  payload: TInput,
+  apiKey: string
+): Promise&lt;TOutput&gt; {
+  const res = await fetch(tool.proxyUrl, {
+    method: "POST",
+    headers: {
+      "Authorization": `Bearer ${apiKey}`,
+      "Content-Type": "application/json"
+    },
+    body: JSON.stringify(payload)
+  });
+
+  if (res.status === 429) {
+    const retryAfter = Number(res.headers.get("Retry-After"));
+    await new Promise(r =&gt; setTimeout(r, retryAfter * 1000));
+    return invokeActionForgeTool(tool, payload, apiKey);
+  }
+
+  if (!res.ok) {
+    throw new Error(`Tool invocation failed: ${res.status}`);
+  }
+
+  const data = await res.json();
+  return data.result as TOutput;
+}</code></pre>
+
+    <h3>Error‑aware reasoning</h3>
+    <table>
+      <thead>
+        <tr><th>Status</th><th>Agent interpretation</th></tr>
+      </thead>
+      <tbody>
+        <tr><td>400</td><td>Payload invalid → revise plan using <code>inputSchema</code></td></tr>
+        <tr><td>401</td><td>Authentication failure → request new key</td></tr>
+        <tr><td>404</td><td>Tool missing → remove from registry</td></tr>
+        <tr><td>429</td><td>Rate limit → backoff and retry after <code>Retry-After</code></td></tr>
+        <tr><td>500</td><td>Tool creation failed → notify developer</td></tr>
+        <tr><td>502</td><td>Output mismatched <code>outputSchema</code> → adjust expectations or escalate</td></tr>
+      </tbody>
+    </table>
+  </section>
+
+  <section id="postman">
+    <h2>Postman Collection <span class="section-tag">Importable JSON</span></h2>
+    <p>Import this collection into Postman to test registration and invocation quickly.</p>
+    <pre><code>{
+  "info": {
+    "name": "ActionForge API",
+    "_postman_id": "b7c8d1f2-3a45-4c9f-9d11-2e4f7a8b9c10",
+    "description": "Postman collection for ActionForge tool registration and invocation.",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "item": [
+    {
+      "name": "Generate Tool",
+      "request": {
+        "method": "POST",
+        "header": [
+          { "key": "Authorization", "value": "Bearer {{apiKey}}", "type": "text" },
+          { "key": "Content-Type", "value": "application/json" }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"toolName\": \"LoanPaymentCalculator\",\n  \"description\": \"Computes monthly loan payments using standard amortization.\",\n  \"inputSchema\": {\n    \"type\": \"object\",\n    \"required\": [\"principal\", \"annualRate\", \"years\"],\n    \"properties\": {\n      \"principal\": { \"type\": \"number\", \"minimum\": 0 },\n      \"annualRate\": { \"type\": \"number\", \"minimum\": 0 },\n      \"years\": { \"type\": \"number\", \"minimum\": 1 }\n    }\n  },\n  \"outputSchema\": {\n    \"type\": \"object\",\n    \"required\": [\"monthlyPayment\"],\n    \"properties\": {\n      \"monthlyPayment\": { \"type\": \"number\" }\n    }\n  }\n}"
+        },
+        "url": {
+          "raw": "{{baseUrl}}/api/generate-tool",
+          "host": ["{{baseUrl}}"],
+          "path": ["api", "generate-tool"]
+        }
+      }
+    },
+    {
+      "name": "Invoke Tool",
+      "request": {
+        "method": "POST",
+        "header": [
+          { "key": "Authorization", "value": "Bearer {{apiKey}}", "type": "text" },
+          { "key": "Content-Type", "value": "application/json" }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"principal\": 250000,\n  \"annualRate\": 5.0,\n  \"years\": 30\n}"
+        },
+        "url": {
+          "raw": "{{baseUrl}}/api/invoke/{{toolId}}",
+          "host": ["{{baseUrl}}"],
+          "path": ["api", "invoke", "{{toolId}}"]
+        }
+      }
+    }
+  ],
+  "variable": [
+    { "key": "apiKey", "value": "" },
+    { "key": "baseUrl", "value": "https://api.actionforge.com" },
+    { "key": "toolId", "value": "" }
+  ]
+}</code></pre>
+  </section>
+
+  <section id="faq">
+    <h2>FAQ <span class="section-tag">Common questions</span></h2>
+
+    <div class="faq-item">
+      <h3>What is ActionForge?</h3>
+      <p>
+        A hosted service where you define tools with JSON Schema, receive a URL, and POST input to get validated output.
+      </p>
+    </div>
+
+    <div class="faq-item">
+      <h3>Can I update or delete tools?</h3>
+      <p>
+        The API contract does not specify update or delete endpoints. Treat tools as immutable and register new ones when you need changes.
+      </p>
+    </div>
+
+    <div class="faq-item">
+      <h3>What happens if my input doesn’t match the schema?</h3>
+      <p>You receive <code>400 Bad Request</code>. Fix the payload to conform to the registered <code>inputSchema</code> and retry.</p>
+    </div>
+
+    <div class="faq-item">
+      <h3>Why does <code>outputSchema</code> matter?</h3>
+      <p>
+        ActionForge validates the tool’s output against <code>outputSchema</code>. If it doesn’t match, the call fails with <code>502 Bad Gateway</code>.
+      </p>
+    </div>
+
+    <div class="faq-item">
+      <h3>What are the rate limits?</h3>
+      <table>
+        <thead>
+          <tr><th>Action</th><th>Limit per hour (per key)</th></tr>
+        </thead>
+        <tbody>
+          <tr><td>Tool registrations</td><td>10</td></tr>
+          <tr><td>Tool invocations</td><td>1000</td></tr>
+        </tbody>
+      </table>
+      <p>
+        Exceeding either returns <code>429 Too Many Requests</code> with a <code>Retry-After</code> header and <code>retryAfter</code> field.
+        All requests, including failed ones, count against quota.
+      </p>
+    </div>
+
+    <div class="faq-item">
+      <h3>What is <code>executionMs</code>?</h3>
+      <p>The time the tool took to execute, in milliseconds. No specific accuracy guarantees are defined in the contract.</p>
+    </div>
+
+    <div class="faq-item">
+      <h3>What’s intentionally unspecified?</h3>
+      <ul>
+        <li>Maximum request body size.</li>
+        <li>Maximum schema size.</li>
+        <li>Maximum execution time.</li>
+        <li>Tool update/delete semantics.</li>
+        <li>Versioning behavior.</li>
+        <li>Whether <code>proxyUrl</code> can change after creation.</li>
+      </ul>
+    </div>
+  </section>
+</main>
+
+<footer>
+  <p>
+    ActionForge — API‑first tool definition and invocation.  
+    This page is static HTML and can be hosted directly (e.g., GitHub Pages).
+  </p>
+</footer>
+</body>
+</html>
