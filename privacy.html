@@ -1,0 +1,205 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Privacy Policy — ActionForge</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta name="description" content="Privacy Policy for ActionForge, a developer API for generating and hosting custom API endpoints." />
+  <link rel="stylesheet" href="legal.css" />
+</head>
+<body>
+<header>
+  <div class="nav">
+    <div class="nav-title"><span class="logo-dot"></span> ActionForge</div>
+    <nav class="nav-links">
+      <a href="index.html">Docs</a>
+      <a href="index.html#pricing">Pricing</a>
+      <a href="terms.html">Terms</a>
+      <a href="privacy.html">Privacy</a>
+    </nav>
+  </div>
+</header>
+<main>
+<h1>ActionForge — Privacy Policy</h1>
+<p><strong>Effective date:</strong> 13 August 2026</p>
+<p>ActionForge is operated by <strong>Prita Sharma</strong>, a sole proprietor located in San Diego, California, United States. Contact for any privacy question or request:</p>
+<p><strong>pritasharma25@gmail.com</strong>.</p>
+<p>This policy describes what the Service collects, why, who it is shared with, and how long it is kept. It is written against what the system actually stores rather than in general terms.</p>
+<hr />
+<h2>1. What we collect</h2>
+<h3>You give us</h3>
+<div class='table-wrap'><table><thead><tr>
+<th>Data</th>
+<th>When</th>
+<th>Why</th>
+</tr></thead><tbody>
+<tr>
+<td><strong>Email address</strong></td>
+<td>Signing up</td>
+<td>Identifies the account, prevents one person minting unlimited free accounts, and is how we reach you about billing or service changes</td>
+</tr>
+<tr>
+<td><strong>Account name or label</strong></td>
+<td>Signup or key issuance</td>
+<td>Distinguishes tenants</td>
+</tr>
+<tr>
+<td><strong>Tool descriptions and JSON Schemas</strong></td>
+<td>Creating a tool</td>
+<td>Sent to our code-generation provider to produce the tool</td>
+</tr>
+<tr>
+<td><strong>Invocation inputs</strong></td>
+<td>Every tool call</td>
+<td>Executed by the tool; <strong>recorded in full</strong> — see Section 2</td>
+</tr>
+</tbody></table></div>
+<h3>Generated for you</h3>
+<div class='table-wrap'><table><thead><tr>
+<th>Data</th>
+<th>Why</th>
+</tr></thead><tbody>
+<tr>
+<td><strong>Generated source code</strong></td>
+<td>Stored per tool so it remains reproducible if the execution platform loses its copy</td>
+</tr>
+<tr>
+<td><strong>Invocation results</strong></td>
+<td><strong>Recorded in full</strong> alongside inputs</td>
+</tr>
+<tr>
+<td><strong>Execution timing and counts</strong></td>
+<td>Billing and quota enforcement</td>
+</tr>
+</tbody></table></div>
+<h3>Generated automatically</h3>
+<div class='table-wrap'><table><thead><tr>
+<th>Data</th>
+<th>Why</th>
+</tr></thead><tbody>
+<tr>
+<td><strong>A one-way digest of your API key</strong></td>
+<td>Authentication. We never store the key itself and cannot recover it</td>
+</tr>
+<tr>
+<td><strong>A one-way digest of your network address</strong></td>
+<td>Rate limiting signup. <strong>We do not store your IP address</strong> — only a hash from which it cannot be read back</td>
+</tr>
+<tr>
+<td><strong>Stripe customer and subscription identifiers</strong></td>
+<td>Linking your account to its subscription</td>
+</tr>
+<tr>
+<td><strong>Server logs</strong></td>
+<td>Operating and debugging the Service. These record account identifiers, event identifiers, and error text — never API keys, request bodies, or email addresses</td>
+</tr>
+</tbody></table></div>
+<p>We do not use cookies or tracking technologies. ActionForge is an API with no user interface.</p>
+<h2>2. Invocation inputs and results are stored in full</h2>
+<p><strong>This is the most important thing in this policy.</strong> Every time a tool is called, the input you sent and the result it produced are written to our database and retained.</p>
+<p>They are kept so that usage can be billed accurately, so a failing tool can be diagnosed, and so abuse can be investigated. They are not used to train any model, and they are not sold or shared for advertising.</p>
+<p><strong>Because of this, do not send sensitive personal data through ActionForge.</strong> It is not designed for and must not be used with protected health information, payment card numbers, government identifiers, financial account credentials, or comparable categories. If you need to process such data, do not put it in a tool input.</p>
+<h2>3. Legal bases</h2>
+<p>Where the GDPR or UK GDPR applies to you, we rely on:</p>
+<ul>
+<li><strong>Contract</strong> — account data, tool definitions, invocation records, and billing</li>
+</ul>
+<p>data are all necessary to provide the Service you asked for.</p>
+<ul>
+<li><strong>Legitimate interests</strong> — rate-limit digests, server logs, and abuse</li>
+</ul>
+<p>investigation, balanced against your interests and limited to what is needed to keep the Service running and unabused.</p>
+<ul>
+<li><strong>Legal obligation</strong> — retention of billing records for tax and accounting.</li>
+</ul>
+<p>If you submit personal data belonging to someone else through a tool input, you are the controller of that data and we process it on your behalf.</p>
+<h2>4. Who we share it with</h2>
+<p>We do not sell personal information and we do not share it for advertising. We use these providers, each of which processes only what its function requires:</p>
+<div class='table-wrap'><table><thead><tr>
+<th>Provider</th>
+<th>What it receives</th>
+<th>Purpose</th>
+</tr></thead><tbody>
+<tr>
+<td><strong>Anthropic</strong></td>
+<td>Your tool descriptions and JSON Schemas</td>
+<td>Generating tool source code</td>
+</tr>
+<tr>
+<td><strong>Cloudflare</strong></td>
+<td>Generated code, and invocation inputs at call time</td>
+<td>Executing your tools</td>
+</tr>
+<tr>
+<td><strong>Supabase</strong></td>
+<td>All stored data described above</td>
+<td>Database hosting</td>
+</tr>
+<tr>
+<td><strong>Stripe</strong></td>
+<td>Your email and payment details, which you enter directly with Stripe</td>
+<td>Subscription billing. <strong>We never see or store your card number</strong></td>
+</tr>
+<tr>
+<td><strong>Railway</strong></td>
+<td>Traffic to the API</td>
+<td>Application hosting</td>
+</tr>
+</tbody></table></div>
+<p>We may disclose data where legally required, and we will tell you unless prohibited from doing so.</p>
+<p>Data is processed in the United States. Where required for transfers out of the EEA or UK, we rely on the Standard Contractual Clauses adopted by our providers.</p>
+<h2>5. How long we keep it</h2>
+<div class='table-wrap'><table><thead><tr>
+<th>Data</th>
+<th>Retention</th>
+</tr></thead><tbody>
+<tr>
+<td>Account, email, key digests</td>
+<td>Until you delete the account</td>
+</tr>
+<tr>
+<td>Tools and generated source</td>
+<td>Until the tool or the account is deleted</td>
+</tr>
+<tr>
+<td><strong>Tool deletion audit records</strong></td>
+<td>Retained after a tool is deleted, including its generated source, so deletion is recoverable. Removed when the account is deleted</td>
+</tr>
+<tr>
+<td><strong>Invocation records</strong></td>
+<td><strong>Retained after the tool is deleted</strong>, with the link to the tool removed, so a billing period cannot be recomputed after the fact. Removed when the account is deleted</td>
+</tr>
+<tr>
+<td>Billing records (Stripe events, invoices)</td>
+<td>Up to 7 years, as required for tax and accounting, even after account deletion</td>
+</tr>
+<tr>
+<td>Rate-limit digests</td>
+<td>Automatically expired shortly after their time window closes</td>
+</tr>
+<tr>
+<td>Server logs</td>
+<td>Retained only as long as our hosting provider's log window</td>
+</tr>
+</tbody></table></div>
+<p><strong>Deleting your account</strong> removes its tools, keys, invocation records, and deletion audit records. Ask at the contact address above and we will confirm when it is done.</p>
+<h2>6. Your rights</h2>
+<p>Wherever you are, you may ask us to access, correct, export, or delete your data, and we will respond within 30 days at <strong>pritasharma25@gmail.com</strong>. We may need to verify you control the account before acting.</p>
+<p><strong>If you are in California (CCPA/CPRA)</strong>, you have the right to know what personal information we collect and why, to request deletion or correction, to request a portable copy, and not to be discriminated against for exercising these rights. <strong>We have not sold or shared personal information in the preceding twelve months</strong>, and we do not knowingly collect data from anyone under 16.</p>
+<p><strong>If you are in the EEA or UK</strong>, you additionally have the right to object to or restrict processing, to withdraw consent where we rely on it, and to complain to your local supervisory authority.</p>
+<h2>7. Security</h2>
+<p>API keys are stored only as SHA-256 digests. Every request is authenticated and scoped to its account by a database query filter, so one tenant's data is not reachable from another's credentials. Traffic is encrypted in transit. Generated code is scanned before deployment and refused if it attempts network access or runtime code execution.</p>
+<p>No system is perfectly secure. If we become aware of a breach affecting your personal data, we will notify you and any required regulator without undue delay.</p>
+<h2>8. Children</h2>
+<p>The Service is not directed to anyone under 16, and we do not knowingly collect their data. If you believe a child has provided us data, contact us and we will delete it.</p>
+<h2>9. Changes</h2>
+<p>We may update this policy. Material changes will be notified to the email on your account or posted here before taking effect. The effective date above marks the current version.</p>
+<hr />
+<p>Questions or requests: <strong>pritasharma25@gmail.com</strong></p>
+</main>
+<footer>
+  <p>ActionForge — operated by Prita Sharma, San Diego, California, United States.
+  Questions: <a href="mailto:pritasharma25@gmail.com">pritasharma25@gmail.com</a></p>
+</footer>
+</body>
+</html>

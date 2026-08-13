@@ -1,0 +1,120 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Terms of Service — ActionForge</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta name="description" content="Terms of Service for ActionForge, a developer API for generating and hosting custom API endpoints." />
+  <link rel="stylesheet" href="legal.css" />
+</head>
+<body>
+<header>
+  <div class="nav">
+    <div class="nav-title"><span class="logo-dot"></span> ActionForge</div>
+    <nav class="nav-links">
+      <a href="index.html">Docs</a>
+      <a href="index.html#pricing">Pricing</a>
+      <a href="terms.html">Terms</a>
+      <a href="privacy.html">Privacy</a>
+    </nav>
+  </div>
+</header>
+<main>
+<h1>ActionForge — Terms of Service</h1>
+<p><strong>Effective date:</strong> 13 August 2026</p>
+<p>ActionForge is operated by <strong>Prita Sharma</strong>, a sole proprietor located in San Diego, California, United States ("we", "us"). Contact:</p>
+<p><strong>pritasharma25@gmail.com</strong>.</p>
+<p>By creating an account, requesting an API key, or calling the ActionForge API, you ("you", "Customer") agree to these Terms. If you are agreeing on behalf of a company, you confirm you are authorised to bind it.</p>
+<hr />
+<h2>1. What the Service does</h2>
+<p>ActionForge takes a description and a pair of JSON Schemas from you, uses a third-party large language model to generate JavaScript source implementing a tool matching that description, deploys that source as a serverless function, and executes it on request with input you supply.</p>
+<p>Three consequences follow, and you should read them before relying on the Service:</p>
+<p><strong>a. Generated code is machine-written and not reviewed by a human.</strong> It may be incorrect, inefficient, or fail to implement your description. You are responsible for validating that a generated tool does what you need before depending on it. Output schemas are validated on every invocation, which constrains the <em>shape</em> of a result — never its correctness.</p>
+<p><strong>b. Generation is not deterministic.</strong> The same description submitted twice may produce different code. We store the generated source for each tool so it can be reproduced, but we cannot regenerate an identical tool from a description.</p>
+<p><strong>c. Generated code is restricted by an automated policy.</strong> Tools must be pure functions of their input. Generated code that reaches the network or executes code constructed at runtime is rejected and never deployed. A rejection consumes your generation quota, because the generation itself was performed. We may change this policy where necessary to protect the Service.</p>
+<h2>2. Accounts and API keys</h2>
+<p>Access requires an API key belonging to an account. <strong>We store only a SHA-256 digest of each key.</strong> We cannot recover a lost key — we can only issue a new one and revoke the old.</p>
+<p>You are responsible for keeping your keys confidential and for all activity under them. Tell us immediately at the contact address above if a key is exposed, and we will revoke it.</p>
+<p>Self-serve signup, where enabled, may require an invite code and is rate limited per network address. We may refuse to create an account for any reason.</p>
+<h2>3. Plans, quotas, and fair use</h2>
+<p>Plans and their quotas are published on the Service and may change on 30 days' notice, except where a change is required for security or by a supplier. Quotas are enforced in real time: exceeding a rate limit returns an error with a retry hint, and exceeding your plan's tool limit refuses the request before any work is billed.</p>
+<p>The scarce resource is deployed tools, because each one occupies capacity on infrastructure we pay for. Deleting a tool frees its slot immediately.</p>
+<p>You must not:</p>
+<ul>
+<li>attempt to circumvent quotas, rate limits, the execution policy, or the</li>
+</ul>
+<p>separation between accounts;</p>
+<ul>
+<li>use the Service to generate or run code that is unlawful, infringes another</li>
+</ul>
+<p>party's rights, or is designed to attack, probe, or degrade any system;</p>
+<ul>
+<li>submit content you lack the right to submit;</li>
+<li>resell or provide the Service to third parties in a way that disguises its</li>
+</ul>
+<p>origin, without our written agreement.</p>
+<p>We may suspend an account that breaches this section. Suspension disables the account's keys; it does not delete its tools, so access can be restored.</p>
+<h2>4. Fees, billing, and cancellation</h2>
+<p>Paid plans are monthly subscriptions billed in advance through Stripe. By subscribing you authorise recurring charges until you cancel.</p>
+<ul>
+<li><strong>Upgrades</strong> take effect when Stripe confirms payment.</li>
+<li><strong>Cancellation</strong> is through the billing flow or by contacting us. On</li>
+</ul>
+<p>cancellation your account returns to the free plan. Tools beyond the free plan's limit are <strong>not</strong> deleted, but you will not be able to create new ones until you are under the limit.</p>
+<ul>
+<li><strong>Fees are non-refundable</strong> except where required by law. We do not pro-rate</li>
+</ul>
+<p>partial months.</p>
+<ul>
+<li>Taxes are your responsibility unless we are required to collect them.</li>
+</ul>
+<p>If a payment fails, we may keep your plan active for a short grace period before downgrading. We may change prices on 30 days' notice; the new price applies from your next billing period.</p>
+<h2>5. Your content, and what we do with it</h2>
+<p>You retain ownership of the descriptions, schemas, and input data you submit ("Customer Content"). You grant us a licence to host, process, and transmit it only as needed to operate the Service — including sending your descriptions and schemas to our code-generation provider.</p>
+<p><strong>You own the generated source produced for your tools.</strong> We retain a copy for the purposes described in Section 6.</p>
+<p><strong>Do not submit sensitive personal data.</strong> Invocation inputs and results are recorded in full for billing, debugging, and abuse investigation. The Service is not designed for protected health information, payment card data, government identifiers, or similar categories, and you must not send them through it. See the Privacy Policy.</p>
+<h2>6. Data retention, including after deletion</h2>
+<p>Some records deliberately outlive the thing they describe:</p>
+<ul>
+<li><strong>Generated source</strong> is stored for every tool, so a tool remains reproducible</li>
+</ul>
+<p>if the execution platform loses its copy.</p>
+<ul>
+<li><strong>Deleting a tool writes an audit record</strong> that retains its name, schemas, and</li>
+</ul>
+<p>generated source. This is what makes an accidental deletion recoverable.</p>
+<ul>
+<li><strong>Invocation records are retained after the tool they belong to is deleted</strong>,</li>
+</ul>
+<p>with the link to the tool removed. This is deliberate: it means a billing period cannot be recomputed to a different number by deleting tools after the fact.</p>
+<p>Deleting your <strong>account</strong> removes its tools, keys, invocation records, and deletion audit records. Billing records required for tax and accounting purposes are retained as described in the Privacy Policy.</p>
+<h2>7. Availability</h2>
+<p>The Service is provided on an "as available" basis. <strong>We offer no uptime commitment and no service credits.</strong> We depend on third-party providers for code generation, execution, database, payments, and hosting, and their outages will affect us.</p>
+<p>We may modify or discontinue the Service. If we discontinue it, we will make reasonable efforts to give 30 days' notice to the email on your account so you can export your tools and their generated source.</p>
+<h2>8. Warranties and disclaimers</h2>
+<p><strong>THE SERVICE AND ALL GENERATED CODE ARE PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE, AND NON-INFRINGEMENT.</strong></p>
+<p>We specifically do not warrant that generated code is correct, secure, suitable for any purpose, or free of third-party rights, nor that the Service will be uninterrupted or error-free.</p>
+<h2>9. Limitation of liability</h2>
+<p><strong>To the maximum extent permitted by law, our total aggregate liability arising out of or relating to these Terms or the Service will not exceed the greater of (a) the fees you paid us in the twelve months before the event giving rise to the claim, or (b) one hundred US dollars ($100).</strong></p>
+<p><strong>We will not be liable for indirect, incidental, special, consequential, or punitive damages, or for lost profits, revenue, data, or business opportunities</strong>, even if advised of the possibility.</p>
+<p>Nothing here limits liability that cannot be limited by law.</p>
+<h2>10. Indemnity</h2>
+<p>You will defend and indemnify us against third-party claims arising from your Customer Content, your use of the Service, or your breach of these Terms.</p>
+<h2>11. Termination</h2>
+<p>You may stop using the Service and close your account at any time. We may suspend or terminate access for breach of these Terms, non-payment, or where required by law or a supplier.</p>
+<p>Sections 5, 6, 8, 9, 10, and 12 survive termination.</p>
+<h2>12. Governing law and disputes</h2>
+<p>These Terms are governed by the laws of the <strong>State of California</strong>, United States, without regard to conflict-of-laws rules. Disputes are subject to the exclusive jurisdiction of the state and federal courts located in <strong>San Diego County, California</strong>, and both parties consent to that venue.</p>
+<h2>13. Changes</h2>
+<p>We may update these Terms. Material changes will be notified to the email on your account or posted here at least 30 days before taking effect, except where a shorter period is required for security or legal reasons. Continuing to use the Service after changes take effect means you accept them.</p>
+<h2>14. Miscellaneous</h2>
+<p>These Terms are the entire agreement between us regarding the Service. If a provision is unenforceable, the rest remains in force. Our failure to enforce a provision is not a waiver. You may not assign these Terms without our consent; we may assign them in connection with a merger or sale of the business.</p>
+<hr />
+<p>Questions: <strong>pritasharma25@gmail.com</strong></p>
+</main>
+<footer>
+  <p>ActionForge — operated by Prita Sharma, San Diego, California, United States.
+  Questions: <a href="mailto:pritasharma25@gmail.com">pritasharma25@gmail.com</a></p>
+</footer>
+</body>
+</html>
