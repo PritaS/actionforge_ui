@@ -278,6 +278,9 @@
       <a href="#agents">Agent Guide</a>
       <a href="#postman">Postman</a>
       <a href="#faq">FAQ</a>
+      <a href="#pricing">Pricing</a>
+      <a href="terms.html">Terms</a>
+      <a href="privacy.html">Privacy</a>
     </nav>
   </div>
 </header>
@@ -685,6 +688,64 @@ if (!created.ready) {
 }</code></pre>
   </section>
 
+  <section id="pricing">
+    <h2>Pricing <span class="section-tag">Monthly subscriptions, USD</span></h2>
+    <p>
+      No setup fee and no per-request charge. Plans differ by how many endpoints you
+      may keep active and how often you may create and call them.
+    </p>
+    <table>
+      <thead>
+        <tr><th>&nbsp;</th><th>Free</th><th>Pro</th><th>Team</th></tr>
+      </thead>
+      <tbody>
+        <tr><td><strong>Price</strong></td><td>$0</td><td><strong>$49 / month</strong></td><td><strong>$299 / month</strong></td></tr>
+        <tr><td>Active endpoints</td><td>3</td><td>25</td><td>200</td></tr>
+        <tr><td>Endpoints created per hour</td><td>10</td><td>100</td><td>500</td></tr>
+        <tr><td>Requests per hour</td><td>1,000</td><td>50,000</td><td>500,000</td></tr>
+      </tbody>
+    </table>
+    <p>
+      Payment is by card through Stripe Checkout; we never see or store card details.
+      Charges appear on your statement as <code>ACTIONFORGE</code>.
+    </p>
+
+    <h3>Cancelling</h3>
+    <p>
+      Cancel at any time. There is no minimum term and no cancellation fee. Your account
+      returns to the Free plan immediately and <strong>your endpoints are not deleted</strong> —
+      you simply cannot create new ones until you are within the Free plan's limit of three.
+    </p>
+    <p>
+      Subscriptions are billed monthly in advance, and fees are not refunded for a partial
+      month except where the law requires it. If something has gone wrong, email us before
+      disputing a charge — we would rather fix it.
+    </p>
+
+    <h3>Getting started</h3>
+    <p>
+      Access is currently <strong>by request</strong> while the service is in early release.
+      Email <a href="mailto:pritasharma25@gmail.com">pritasharma25@gmail.com</a> for an invite
+      code, then create an account:
+    </p>
+    <pre><code>curl -X POST https://actionforge-production.up.railway.app/api/signup \
+  -H 'content-type: application/json' \
+  -d '{"email":"you@example.com","inviteCode":"YOUR_CODE"}'</code></pre>
+    <p>
+      That returns an API key. It is shown once and stored only as a cryptographic digest,
+      so keep it safe — we can issue a new key, but we cannot recover the old one.
+    </p>
+
+    <h3>Support</h3>
+    <p>
+      <a href="mailto:pritasharma25@gmail.com">pritasharma25@gmail.com</a> — we aim to reply
+      within two business days. See also our
+      <a href="terms.html">Terms of Service</a> and <a href="privacy.html">Privacy Policy</a>.
+      Please read the Privacy Policy before sending real data: the inputs and results of every
+      call are recorded, so the service must not be used with sensitive personal information.
+    </p>
+  </section>
+
   <section id="faq">
     <h2>FAQ <span class="section-tag">Common questions</span></h2>
 
@@ -698,7 +759,7 @@ if (!created.ready) {
     <div class="faq-item">
       <h3>Can I update or delete tools?</h3>
       <p>
-        The API contract does not specify update or delete endpoints. Treat tools as immutable and register new ones when you need changes.
+        There is no update endpoint — treat a tool as immutable and register a new one when its behaviour must change. There <em>is</em> a delete endpoint (<code>DELETE /api/tools/{toolId}</code>), which removes the tool and frees the plan slot it occupied.
       </p>
     </div>
 
@@ -784,8 +845,10 @@ if (!created.ready) {
 
 <footer>
   <p>
-    ActionForge — API‑first tool definition and invocation.  
-    This page is static HTML and can be hosted directly (e.g., GitHub Pages).
+    ActionForge — API‑first tool definition and invocation.
+    Operated by Prita Sharma, San Diego, California, United States.
+    <a href="terms.html">Terms</a> · <a href="privacy.html">Privacy</a> ·
+    <a href="mailto:pritasharma25@gmail.com">pritasharma25@gmail.com</a>
   </p>
 </footer>
 </body>
