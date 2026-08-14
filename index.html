@@ -68,8 +68,11 @@
       text-decoration: none;
     }
     .nav-brand img {
-      height: 32px;
+      height: 44px;
       width: auto;
+    }
+    @media (max-width: 700px) {
+      .nav-brand img { height: 36px; }
     }
     .nav-brand span {
       font-weight: 700;
@@ -90,6 +93,48 @@
       color: var(--muted);
       font-weight: 500;
       transition: all 0.2s ease;
+    }
+    .nav-cta {
+      background: var(--accent);
+      color: #fff !important;
+      padding: 0.45rem 0.95rem;
+      border-radius: 0.5rem;
+      font-weight: 600;
+      transition: background 0.2s ease;
+    }
+    .nav-cta:hover {
+      background: #0369a1;
+      color: #fff !important;
+      text-decoration: none !important;
+    }
+    .hero-actions {
+      display: flex;
+      gap: 0.75rem;
+      flex-wrap: wrap;
+      margin-top: 1.75rem;
+    }
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.4rem;
+      padding: 0.7rem 1.3rem;
+      border-radius: 0.6rem;
+      font-weight: 600;
+      font-size: 0.95rem;
+      border: 1px solid transparent;
+      transition: all 0.2s ease;
+    }
+    .btn-primary { background: var(--accent); color: #fff; }
+    .btn-primary:hover { background: #0369a1; text-decoration: none; }
+    .btn-secondary {
+      background: var(--bg-card);
+      color: var(--text);
+      border-color: var(--border);
+    }
+    .btn-secondary:hover {
+      border-color: var(--border-hover);
+      background: var(--bg-surface);
+      text-decoration: none;
     }
     .nav-links a:hover {
       color: var(--text);
@@ -148,6 +193,7 @@
       background: var(--accent-glow);
       color: var(--accent);
     }
+    .hero-card pre { font-size: 0.8rem; }
     .hero-card {
       border-radius: 1rem;
       border: 1px solid var(--border);
@@ -351,18 +397,12 @@
   <span style="font-size: 1.25rem; font-weight: 700; color: #0f172a;">ActionForge</span>
 </a>
     <nav class="nav-links">
-      <a href="#pitch">Pitch</a>
-      <a href="#start">Start here</a>
-      <a href="#overview">Overview</a>
-      <a href="#auth">Auth</a>
       <a href="#endpoints">API Reference</a>
       <a href="#quickstart">Quickstart</a>
       <a href="#agents">Agent Guide</a>
-      <a href="#postman">Postman</a>
-      <a href="#faq">FAQ</a>
       <a href="#pricing">Pricing</a>
-      <a href="terms.html">Terms</a>
-      <a href="privacy.html">Privacy</a>
+      <a href="#faq">FAQ</a>
+      <a class="nav-cta" href="#start">Get an API key</a>
     </nav>
   </div>
 </header>
@@ -381,6 +421,10 @@
         <span class="badge">Agent‑ready</span>
         <span class="badge">Hosted tools</span>
       </div>
+      <div class="hero-actions">
+        <a class="btn btn-primary" href="#start">Get an API key →</a>
+        <a class="btn btn-secondary" href="#quickstart">Read the quickstart</a>
+      </div>
     </div>
     <div class="hero-card">
       <h2>Quick glance</h2>
@@ -398,7 +442,7 @@ Authorization: Bearer &lt;api-key&gt;
 {
   "toolId": "UUID",
   "toolName": "LoanPaymentCalculator",
-  "proxyUrl": "https://actionforge-production.up.railway.app/api/invoke/&lt;toolId&gt;",
+  "proxyUrl": ".../api/invoke/&lt;toolId&gt;",
   "createdAt": "2026-07-29T11:47:00Z",
   "workerId": "opaque-id",
   "ready": true
