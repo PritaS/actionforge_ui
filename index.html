@@ -61,14 +61,21 @@
       align-items: center;
       justify-content: space-between;
     }
-    .nav-title {
+    .nav-brand {
       display: flex;
       align-items: center;
       gap: 0.75rem;
+      text-decoration: none;
     }
-    .nav-title img {
-      height: 28px;
+    .nav-brand img {
+      height: 32px;
       width: auto;
+    }
+    .nav-brand span {
+      font-weight: 700;
+      font-size: 1.1rem;
+      color: var(--text);
+      letter-spacing: -0.02em;
     }
     .nav-links {
       display: flex;
@@ -339,10 +346,10 @@
 <body>
 <header>
   <div class="nav">
-    <div class="nav-title">
-      <!-- Replace src with your hosted logo URL or relative path if stored locally -->
-      <a href="#"><img src="./ActionForge%20Logo.jpeg" alt="ActionForge Logo" style="height: 32px; width: auto;"></a>
-    </div>
+    <a href="#" class="nav-brand">
+      <img src="./ActionForge%20Logo.jpeg" alt="ActionForge Logo">
+      <span>ActionForge</span>
+    </a>
     <nav class="nav-links">
       <a href="#pitch">Pitch</a>
       <a href="#overview">Overview</a>
