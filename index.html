@@ -67,6 +67,32 @@
       gap: 0.75rem;
       text-decoration: none;
     }
+    .nav-brand .logo-mark {
+      width: 48px;
+      height: 48px;
+      overflow: hidden;
+      position: relative;
+      flex: none;
+      display: block;
+    }
+    .nav-brand .logo-mark img {
+      position: absolute;
+      width: 159px;
+      height: auto;
+      left: -55px;
+      top: -13px;
+      mix-blend-mode: multiply;
+    }
+    .nav-brand .brand-word {
+      font-size: 1.25rem;
+      font-weight: 700;
+      color: var(--text);
+      letter-spacing: -0.02em;
+    }
+    @media (max-width: 700px) {
+      .nav-brand .logo-mark { width: 40px; height: 40px; }
+      .nav-brand .logo-mark img { width: 132px; left: -46px; top: -11px; }
+    }
     .nav-brand img {
       height: 44px;
       width: auto;
@@ -392,10 +418,10 @@
 <body>
 <header>
   <div class="nav">
-   <a href="index.html" class="nav-brand">
-  <img src="logo.jpeg" alt="ActionForge Logo" style="height: 52px; width: auto; display: block;">
-  <span style="font-size: 1.25rem; font-weight: 700; color: #0f172a;">ActionForge</span>
-</a>
+    <a href="index.html" class="nav-brand">
+      <span class="logo-mark"><img src="logo.jpeg" alt=""></span>
+      <span class="brand-word">ActionForge</span>
+    </a>
     <nav class="nav-links">
       <a href="#endpoints">API Reference</a>
       <a href="#quickstart">Quickstart</a>
