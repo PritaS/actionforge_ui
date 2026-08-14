@@ -70,18 +70,8 @@
     .nav-brand .logo-mark {
       width: 48px;
       height: 48px;
-      overflow: hidden;
-      position: relative;
       flex: none;
       display: block;
-    }
-    .nav-brand .logo-mark img {
-      position: absolute;
-      width: 159px;
-      height: auto;
-      left: -55px;
-      top: -13px;
-      mix-blend-mode: multiply;
     }
     .nav-brand .brand-word {
       font-size: 1.25rem;
@@ -91,7 +81,6 @@
     }
     @media (max-width: 700px) {
       .nav-brand .logo-mark { width: 40px; height: 40px; }
-      .nav-brand .logo-mark img { width: 132px; left: -46px; top: -11px; }
     }
     .nav-brand img {
       height: 44px;
@@ -419,7 +408,7 @@
 <header>
   <div class="nav">
     <a href="index.html" class="nav-brand">
-      <span class="logo-mark"><img src="logo.jpeg" alt=""></span>
+      <img class="logo-mark" src="mark.png" alt="" width="48" height="48">
       <span class="brand-word">ActionForge</span>
     </a>
     <nav class="nav-links">
