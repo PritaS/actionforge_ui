@@ -352,6 +352,7 @@
 </a>
     <nav class="nav-links">
       <a href="#pitch">Pitch</a>
+      <a href="#start">Start here</a>
       <a href="#overview">Overview</a>
       <a href="#auth">Auth</a>
       <a href="#endpoints">API Reference</a>
@@ -397,7 +398,7 @@ Authorization: Bearer &lt;api-key&gt;
 {
   "toolId": "UUID",
   "toolName": "LoanPaymentCalculator",
-  "proxyUrl": "https://YOUR-DEPLOYMENT.example.com/api/invoke/&lt;toolId&gt;",
+  "proxyUrl": "https://actionforge-production.up.railway.app/api/invoke/&lt;toolId&gt;",
   "createdAt": "2026-07-29T11:47:00Z",
   "workerId": "opaque-id",
   "ready": true
@@ -408,12 +409,12 @@ Authorization: Bearer &lt;api-key&gt;
   <section id="pitch" class="pitch">
     <h2>The Pitch <span class="section-tag">Why ActionForge exists</span></h2>
     <p class="lead">
-      ActionForge is a dynamic execution engine that allows AI agents to autonomously write,
-      deploy, and invoke their own custom micro‑tools in real time. By leveraging secure
-      Cloudflare V8 isolates and the Model Context Protocol, it eliminates the developer
-      bottleneck of manually hard‑coding API integrations. Ultimately, it provides the highly
-      scalable, sandboxed infrastructure required to turn static LLMs into truly autonomous,
-      self‑tooling systems.
+      ActionForge lets AI agents create their own tools at run time. An agent describes the
+      function it needs and supplies JSON Schemas for input and output; ActionForge generates
+      the implementation, deploys it as its own Cloudflare Worker, and returns a validated
+      HTTP endpoint — usually in seconds. Every tool is a pure function of its input, so an
+      agent gets deterministic, schema‑checked computation instead of guessing at arithmetic
+      in context.
     </p>
     <div class="pitch-points">
       <div class="pitch-point">
@@ -421,18 +422,70 @@ Authorization: Bearer &lt;api-key&gt;
         <span>Agents write, deploy, and invoke their own micro‑tools at run time — no redeploy, no human in the loop.</span>
       </div>
       <div class="pitch-point">
-        <strong>Sandboxed by design</strong>
-        <span>Every tool runs in a secure Cloudflare V8 isolate, so untrusted generated code stays contained.</span>
+        <strong>Contained by construction</strong>
+        <span>Generated code is scanned before deploy and refused if it reaches the network or evals. A tool computes — it cannot call out.</span>
       </div>
       <div class="pitch-point">
         <strong>MCP‑native</strong>
         <span>Tools surface through the Model Context Protocol, so any MCP‑aware agent can discover and call them.</span>
       </div>
       <div class="pitch-point">
-        <strong>No integration bottleneck</strong>
-        <span>Stop hand‑coding API wrappers; a JSON Schema contract is the whole integration.</span>
+        <strong>Schema in, schema out</strong>
+        <span>Inputs are validated before a tool runs and outputs before they return, so a malformed call fails loudly instead of returning something subtly wrong.</span>
       </div>
     </div>
+  </section>
+
+  <section id="start">
+    <h2>Start here <span class="section-tag">Two steps</span></h2>
+    <p class="lead">
+      The fastest way in is the MCP server: your tools appear directly inside Claude Desktop,
+      Claude Code, or any MCP client. If you would rather call the HTTP API yourself, skip to
+      the <a href="#quickstart">Quickstart</a>.
+    </p>
+
+    <h3>1. Get an API key</h3>
+    <p>
+      Access is by request while we are in early release. Email
+      <a href="mailto:pritasharma25@gmail.com">pritasharma25@gmail.com</a> for an invite code,
+      then:
+    </p>
+    <pre><code>curl -X POST https://actionforge-production.up.railway.app/api/signup \
+  -H 'content-type: application/json' \
+  -d '{"email":"you@example.com","inviteCode":"YOUR_CODE"}'</code></pre>
+    <p>
+      The response contains your key. It is shown <strong>once</strong> and stored only as a
+      SHA‑256 digest, so keep it somewhere safe — we can issue a new one, but we cannot
+      recover the old one.
+    </p>
+
+    <h3>2. Connect it to Claude</h3>
+    <p>Add this to <code>claude_desktop_config.json</code> and restart Claude Desktop:</p>
+    <pre><code>{
+  "mcpServers": {
+    "actionforge": {
+      "command": "npx",
+      "args": ["-y", "actionforge-mcp"],
+      "env": {
+        "ACTIONFORGE_URL": "https://actionforge-production.up.railway.app",
+        "ACTIONFORGE_API_KEY": "af_your_key_here"
+      }
+    }
+  }
+}</code></pre>
+    <p>
+      On macOS that file lives at
+      <code>~/Library/Application Support/Claude/claude_desktop_config.json</code>; on Windows,
+      <code>%APPDATA%\Claude\claude_desktop_config.json</code>. For Claude Code instead:
+    </p>
+    <pre><code>claude mcp add actionforge \
+  --env ACTIONFORGE_URL=https://actionforge-production.up.railway.app \
+  --env ACTIONFORGE_API_KEY=af_your_key_here \
+  -- npx -y actionforge-mcp</code></pre>
+    <p>
+      Every tool on your account now shows up as a tool Claude can call. Nothing to install
+      beyond Node 20.12+ — the server has no runtime dependencies.
+    </p>
   </section>
 
   <section id="overview">
@@ -497,7 +550,7 @@ Authorization: Bearer &lt;api-key&gt;
     <pre><code>{
   "toolId": "UUID",
   "toolName": "LoanPaymentCalculator",
-  "proxyUrl": "https://YOUR-DEPLOYMENT.example.com/api/invoke/c2b1c2d0-9e4f-4a8b-9f6b-4c9a2e7f1234",
+  "proxyUrl": "https://actionforge-production.up.railway.app/api/invoke/c2b1c2d0-9e4f-4a8b-9f6b-4c9a2e7f1234",
   "createdAt": "2026-07-29T11:47:00Z",
   "workerId": "opaque-string-not-to-be-parsed",
   "ready": false
@@ -568,30 +621,18 @@ Authorization: Bearer &lt;api-key&gt;
 
   <section id="quickstart">
     <h2>Quickstart <span class="section-tag">First tool in minutes</span></h2>
-    <p>We’ll build a <strong>Loan Payment Calculator</strong> tool and call it from curl and TypeScript.</p>
+    <p>
+      We’ll build a <strong>Loan Payment Calculator</strong> and call it. You need an API key
+      first — see <a href="#start">Start here</a> — then export it:
+    </p>
+    <pre><code>export ACTIONFORGE_KEY=af_your_key_here</code></pre>
 
-    <h3>1. Define schemas</h3>
-    <p><strong>Input schema</strong>:</p>
-    <pre><code>{
-  "type": "object",
-  "required": ["principal", "annualRate", "years"],
-  "properties": {
-    "principal": { "type": "number", "minimum": 0 },
-    "annualRate": { "type": "number", "minimum": 0 },
-    "years": { "type": "number", "minimum": 1 }
-  }
-}</code></pre>
-    <p><strong>Output schema</strong>:</p>
-    <pre><code>{
-  "type": "object",
-  "required": ["monthlyPayment"],
-  "properties": {
-    "monthlyPayment": { "type": "number" }
-  }
-}</code></pre>
-
-    <h3>2. Register the tool (curl)</h3>
-    <pre><code>curl -X POST https://YOUR-DEPLOYMENT.example.com/api/generate-tool \
+    <h3>1. Register the tool</h3>
+    <p>
+      The two schemas are the contract: inputs are validated against the first before the tool
+      runs, and its result against the second before it returns.
+    </p>
+    <pre><code>curl -X POST https://actionforge-production.up.railway.app/api/generate-tool \
   -H "Authorization: Bearer $ACTIONFORGE_KEY" \
   -H "Content-Type: application/json" \
   -d '{
@@ -615,8 +656,8 @@ Authorization: Bearer &lt;api-key&gt;
     }
   }'</code></pre>
 
-    <h3>3. Invoke the tool (curl)</h3>
-    <pre><code>curl -X POST https://YOUR-DEPLOYMENT.example.com/api/invoke/c2b1c2d0-9e4f-4a8b-9f6b-4c9a2e7f1234 \
+    <h3>2. Invoke the tool (curl)</h3>
+    <pre><code>curl -X POST https://actionforge-production.up.railway.app/api/invoke/c2b1c2d0-9e4f-4a8b-9f6b-4c9a2e7f1234 \
   -H "Authorization: Bearer $ACTIONFORGE_KEY" \
   -H "Content-Type: application/json" \
   -d '{
@@ -625,9 +666,9 @@ Authorization: Bearer &lt;api-key&gt;
     "years": 30
   }'</code></pre>
 
-    <h3>4. Invoke from TypeScript</h3>
+    <h3>3. Invoke from TypeScript</h3>
     <pre><code>const res = await fetch(
-  "https://YOUR-DEPLOYMENT.example.com/api/invoke/c2b1c2d0-9e4f-4a8b-9f6b-4c9a2e7f1234",
+  "https://actionforge-production.up.railway.app/api/invoke/c2b1c2d0-9e4f-4a8b-9f6b-4c9a2e7f1234",
   {
     method: "POST",
     headers: {
@@ -793,7 +834,7 @@ if (!created.ready) {
   ],
   "variable": [
     { "key": "apiKey", "value": "" },
-    { "key": "baseUrl", "value": "https://YOUR-DEPLOYMENT.example.com" },
+    { "key": "baseUrl", "value": "https://actionforge-production.up.railway.app" },
     { "key": "toolId", "value": "" }
   ]
 }</code></pre>
