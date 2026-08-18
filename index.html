@@ -402,6 +402,80 @@
       border-top: 1px solid var(--border);
       text-align: center;
     }
+    /* before / after */
+    .contrast {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+      gap: 1rem;
+      margin-top: 1.5rem;
+    }
+    .contrast-col {
+      border: 1px solid var(--border);
+      border-radius: 0.75rem;
+      padding: 1.25rem;
+      background: var(--bg-card);
+    }
+    .contrast-col h3 {
+      font-size: 0.8rem;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      margin: 0 0 0.9rem;
+      color: var(--muted);
+    }
+    .contrast-col.before { border-color: rgba(225, 29, 72, 0.25); }
+    .contrast-col.before h3 { color: var(--danger); }
+    .contrast-col.after { border-color: rgba(2, 132, 199, 0.3); }
+    .contrast-col.after h3 { color: var(--accent); }
+    .flow { list-style: none; margin: 0; padding: 0; font-size: 0.92rem; }
+    .flow li {
+      padding: 0.3rem 0 0.3rem 1.4rem;
+      position: relative;
+      line-height: 1.5;
+    }
+    .flow li::before {
+      content: '↓';
+      position: absolute; left: 0.15rem; top: 0.3rem;
+      color: var(--muted); font-size: 0.85rem;
+    }
+    .flow li:first-child::before { content: '•'; }
+    .punchline {
+      margin-top: 1.5rem;
+      padding: 0.9rem 1.25rem;
+      border-left: 3px solid var(--accent);
+      background: var(--accent-glow);
+      border-radius: 0 0.5rem 0.5rem 0;
+      font-size: 1.05rem;
+      font-weight: 600;
+    }
+    /* what it is not */
+    .notgrid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(210px, 1fr));
+      gap: 1rem;
+      margin-top: 1.25rem;
+    }
+    .notcard {
+      border: 1px solid var(--border);
+      border-radius: 0.75rem;
+      padding: 1rem 1.1rem;
+      background: var(--bg-card);
+    }
+    .notcard strong { display: block; font-size: 0.9rem; margin-bottom: 0.3rem; }
+    .notcard strong::before { content: '✕ '; color: var(--danger); }
+    .notcard span { color: var(--muted); font-size: 0.88rem; }
+    /* copy-to-clipboard on every code block */
+    .pre-wrap { position: relative; }
+    .pre-wrap .copy-btn {
+      position: absolute; top: 0.8rem; right: 0.8rem;
+      font: inherit; font-size: 0.72rem; font-weight: 600;
+      cursor: pointer; padding: 0.2rem 0.55rem; border-radius: 0.35rem;
+      color: #94a3b8; background: rgba(148, 163, 184, 0.12);
+      border: 1px solid rgba(148, 163, 184, 0.25);
+      opacity: 0.55; transition: opacity 0.15s ease, color 0.15s ease;
+    }
+    .pre-wrap:hover .copy-btn { opacity: 1; }
+    .copy-btn:hover { color: #e2e8f0; }
+    .copy-btn.done { color: #34d399; opacity: 1; }
   </style>
 </head>
 <body>
@@ -441,8 +515,8 @@
         <span class="badge">Hosted tools</span>
       </div>
       <div class="hero-actions">
-        <a class="btn btn-primary" href="#start">Get an API key →</a>
-        <a class="btn btn-secondary" href="demo.html">Try the live demo</a>
+        <a class="btn btn-primary" href="demo.html">Try the live demo →</a>
+        <a class="btn btn-secondary" href="#start">Get an API key</a>
       </div>
     </div>
     <div class="hero-card">
@@ -497,6 +571,74 @@ Authorization: Bearer &lt;api-key&gt;
         <span>Inputs are validated before a tool runs and outputs before they return, so a malformed call fails loudly instead of returning something subtly wrong.</span>
       </div>
     </div>
+  </section>
+
+  <section id="before-after">
+    <h2>Before and after <span class="section-tag">What actually changes</span></h2>
+    <p>
+      Nothing here is about a model being bad at arithmetic. It is about where the rule
+      lives, and whether the same question asked twice gives the same answer.
+    </p>
+    <div class="contrast">
+      <div class="contrast-col before">
+        <h3>Asking the model</h3>
+        <ul class="flow">
+          <li>The rule lives in a prompt, in prose</li>
+          <li>The model interprets it — this time</li>
+          <li>It computes in context, alongside everything else</li>
+          <li>Someone downstream checks the number</li>
+          <li>Usually right. Change model version and re‑check.</li>
+        </ul>
+      </div>
+      <div class="contrast-col after">
+        <h3>Calling a tool</h3>
+        <ul class="flow">
+          <li>The rule is written once, as a tool</li>
+          <li>ActionForge generates it and deploys it</li>
+          <li>Input is validated against its schema</li>
+          <li>A pure function computes the result</li>
+          <li>Output is validated before it returns</li>
+          <li>Same input, same answer — including next year</li>
+        </ul>
+      </div>
+    </div>
+    <p class="punchline">
+      Stop asking the model to remember how to calculate. Give it something that calculates.
+    </p>
+  </section>
+
+  <section id="not">
+    <h2>What ActionForge is not <span class="section-tag">Scope, stated early</span></h2>
+    <p>
+      The boundary is the product, so it is worth reading before you build against it. A tool
+      is a pure function of its JSON input, and that rules out a great deal on purpose —
+      better to find that out here than on your first call.
+    </p>
+    <div class="notgrid">
+      <div class="notcard">
+        <strong>A chatbot</strong>
+        <span>It does not compose an answer afresh each time. It runs the code that was
+        generated once and deployed.</span>
+      </div>
+      <div class="notcard">
+        <strong>A workflow engine</strong>
+        <span>No orchestration, no scheduling, no long‑running jobs, no retries across
+        steps. One call in, one result out.</span>
+      </div>
+      <div class="notcard">
+        <strong>A database</strong>
+        <span>Nothing here is a system of record. Reference data is passed with the request
+        or baked into the tool when it is generated.</span>
+      </div>
+      <div class="notcard">
+        <strong>An integration platform</strong>
+        <span>A tool cannot reach Slack, your CRM, or any HTTP API. Generated code that
+        tries is refused before it is ever deployed.</span>
+      </div>
+    </div>
+    <p class="punchline">
+      What it is: a deterministic execution layer for agents — same rule, same result, every time.
+    </p>
   </section>
 
   <section id="start">
@@ -1066,5 +1208,36 @@ if (!created.ready) {
     <a href="mailto:pritasharma25@gmail.com">pritasharma25@gmail.com</a>
   </p>
 </footer>
+<script>
+  // Every code block gets a copy button, added at run time so the markup above
+  // stays plain <pre><code> and nothing has to be maintained per block.
+  for (const pre of document.querySelectorAll('main pre')) {
+    const wrap = document.createElement('div');
+    wrap.className = 'pre-wrap';
+    pre.parentNode.insertBefore(wrap, pre);
+    wrap.appendChild(pre);
+
+    const btn = document.createElement('button');
+    btn.type = 'button';
+    btn.className = 'copy-btn';
+    btn.textContent = 'Copy';
+    btn.addEventListener('click', async () => {
+      try {
+        await navigator.clipboard.writeText(pre.innerText);
+        btn.textContent = 'Copied';
+        btn.classList.add('done');
+      } catch {
+        // Clipboard access needs a secure context and permission; say so rather
+        // than silently doing nothing.
+        btn.textContent = 'Select and copy';
+      }
+      setTimeout(() => {
+        btn.textContent = 'Copy';
+        btn.classList.remove('done');
+      }, 1600);
+    });
+    wrap.appendChild(btn);
+  }
+</script>
 </body>
 </html>

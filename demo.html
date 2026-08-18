@@ -108,6 +108,35 @@
       font-size: 0.78rem; color: var(--muted);
     }
 
+    /* ---------- stepper ---------- */
+    .stepper {
+      list-style: none; display: flex; flex-wrap: wrap; gap: 0.4rem;
+      margin: 0 0 1.25rem; padding: 0; font-size: 0.82rem;
+    }
+    .stepper li {
+      display: flex; align-items: center; gap: 0.45rem;
+      padding: 0.28rem 0.85rem 0.28rem 0.35rem;
+      border: 1px solid var(--border); border-radius: 999px;
+      background: var(--bg-card); color: var(--muted);
+      transition: color 0.15s ease, border-color 0.15s ease, background 0.15s ease;
+    }
+    .stepper .sn {
+      width: 1.35rem; height: 1.35rem; border-radius: 999px;
+      display: inline-flex; align-items: center; justify-content: center;
+      background: var(--bg-surface); color: var(--muted);
+      font-size: 0.72rem; font-weight: 700;
+    }
+    .stepper li.done { color: var(--text); }
+    .stepper li.done .sn { background: var(--ok); color: #fff; }
+    .stepper li.active {
+      color: var(--accent); border-color: var(--border-hover); background: var(--accent-glow);
+    }
+    .stepper li.active .sn { background: var(--accent); color: #fff; }
+    .stepper li.failed {
+      color: var(--danger); border-color: rgba(225, 29, 72, 0.35); background: var(--danger-bg);
+    }
+    .stepper li.failed .sn { background: var(--danger); color: #fff; }
+
     /* ---------- panels ---------- */
     .panel {
       background: var(--bg-card); border: 1px solid var(--border);
@@ -282,6 +311,13 @@
   <main>
     <h1 class="tool-title" id="toolTitle"></h1>
     <p class="tool-sub" id="toolSub"></p>
+
+    <ol class="stepper" id="stepper">
+      <li><span class="sn">1</span>Describe</li>
+      <li><span class="sn">2</span>Build</li>
+      <li><span class="sn">3</span>Test</li>
+      <li><span class="sn">4</span>Call</li>
+    </ol>
 
     <!-- 1. describe -->
     <section class="panel">
@@ -708,6 +744,18 @@ let current = TOOLS[0];
 let built = true;          // the selected tool starts in a built state
 let lastRun = null;
 
+/**
+ * The stepper tracks where the viewer is in the flow, not what state the tool
+ * is in — a tool arrives already built, but a first-time visitor still starts
+ * at "Describe". `active` is the step they are on; `done` is how many precede it.
+ */
+function setStage(active, done, failed) {
+  [...$("stepper").children].forEach((li, i) => {
+    const n = i + 1;
+    li.className = failed && n === active ? "failed" : n <= done ? "done" : n === active ? "active" : "";
+  });
+}
+
 function renderSidebar() {
   $("toolList").innerHTML = TOOLS.map((t) =>
     '<button class="tool-btn" data-id="' + t.id + '" aria-current="' + (t.id === current.id) + '">' +
@@ -729,10 +777,10 @@ function renderFields() {
       (f.hint ? '<div class="fhint">' + escapeHtml(f.hint) + "</div>" : "") +
     "</div>"
   ).join("");
-  $("fields").querySelectorAll("input").forEach((el) => el.addEventListener("input", run));
+  $("fields").querySelectorAll("input").forEach((el) => el.addEventListener("input", () => run(true)));
 
   $("quickTests").innerHTML =
-    '<span class="hint" style="margin:0 0.2rem 0 0">Quick tests</span>' +
+    '<span class="hint" style="margin:0 0.2rem 0 0">Try to break it</span>' +
     current.quickTests.map((q, i) =>
       '<button class="chip" data-i="' + i + '">' + escapeHtml(q.label) + "</button>"
     ).join("");
@@ -743,7 +791,7 @@ function renderFields() {
         const el = $("f_" + key);
         if (el) el.value = value;
       }
-      run();
+      run(true);
     });
   });
 
@@ -775,6 +823,7 @@ function selectTool(id) {
   $("buildResult").innerHTML = "";
   renderSidebar();
   renderFields();
+  setStage(1, 0);
   run();
 }
 
@@ -812,6 +861,7 @@ async function build() {
       built = false;
       showRefusal(violations);
       renderTabs();
+      setStage(2, 1, true);
       $("buildBtn").disabled = false;
       return;
     }
@@ -832,6 +882,7 @@ async function build() {
     '<p class="hint">Replayed. On the platform this step calls Claude and takes ' +
     'a few seconds; the code it produced is on the <em>Audit</em> tab.</p>';
   $("buildBtn").disabled = false;
+  setStage(3, 2);
   run();
 }
 
@@ -856,7 +907,7 @@ function showRefusal(violations) {
 }
 
 /* --- run ------------------------------------------------------------ */
-function run() {
+function run(userInitiated) {
   const input = readInput();
   let output, error = null;
   try {
@@ -866,6 +917,8 @@ function run() {
   }
   lastRun = { input, output, error, at: new Date() };
   renderTabs();
+  // Testing it is step 3; once they have, the next thing to look at is the call.
+  if (userInitiated && built) setStage(4, 3);
 }
 
 function renderTabs() {
@@ -935,9 +988,11 @@ document.querySelectorAll(".tab").forEach((tab) => {
     for (const name of ["result", "api", "audit"]) {
       $("tab" + name[0].toUpperCase() + name.slice(1)).hidden = tab.dataset.tab !== name;
     }
+    if (tab.dataset.tab === "api" && built) setStage(4, 4);
   });
 });
 
+$("runBtn").addEventListener("click", () => run(true));
 $("buildBtn").addEventListener("click", build);
 $("breakItBtn").addEventListener("click", () => {
   $("ruleText").value =
