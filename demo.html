@@ -1,0 +1,951 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>ActionForge — Interactive Demo</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --bg: #ffffff;
+      --bg-surface: #f8fafc;
+      --bg-card: #ffffff;
+      --accent: #0284c7;
+      --accent-glow: rgba(2, 132, 199, 0.08);
+      --text: #0f172a;
+      --muted: #64748b;
+      --border: #e2e8f0;
+      --border-hover: rgba(2, 132, 199, 0.4);
+      --code-bg: #0f172a;
+      --code-text: #e2e8f0;
+      --danger: #e11d48;
+      --danger-bg: rgba(225, 29, 72, 0.05);
+      --ok: #059669;
+      --ok-bg: rgba(5, 150, 105, 0.06);
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      font-family: 'Inter', system-ui, -apple-system, sans-serif;
+      background: var(--bg-surface);
+      color: var(--text);
+      line-height: 1.6;
+    }
+    code, pre, .mono { font-family: 'JetBrains Mono', ui-monospace, monospace; }
+    a { color: var(--accent); text-decoration: none; }
+    a:hover { color: #0369a1; }
+
+    /* ---------- header ---------- */
+    header {
+      background: var(--bg);
+      border-bottom: 1px solid var(--border);
+      position: sticky; top: 0; z-index: 20;
+    }
+    .nav {
+      max-width: 1240px; margin: 0 auto; padding: 0.6rem 1.5rem;
+      display: flex; align-items: center; gap: 1rem;
+    }
+    .nav-brand { display: flex; align-items: center; gap: 0.6rem; color: var(--text); }
+    .logo-mark { border-radius: 0.5rem; }
+    .brand-word { font-weight: 700; letter-spacing: -0.01em; }
+    .demo-badge {
+      display: inline-flex; align-items: center; gap: 0.45rem;
+      font-size: 0.75rem; font-weight: 600; letter-spacing: 0.04em;
+      text-transform: uppercase; color: var(--accent);
+      background: var(--accent-glow); border: 1px solid var(--border-hover);
+      padding: 0.2rem 0.6rem; border-radius: 999px;
+    }
+    .demo-badge::before {
+      content: ''; width: 7px; height: 7px; border-radius: 999px;
+      background: var(--accent);
+    }
+    .nav-spacer { flex: 1; }
+    .nav-links { display: flex; gap: 1.1rem; align-items: center; font-size: 0.9rem; }
+
+    /* the honesty line — deliberately in the chrome, not a dismissable toast */
+    .mode-strip {
+      background: var(--bg);
+      border-bottom: 1px solid var(--border);
+      font-size: 0.83rem; color: var(--muted);
+    }
+    .mode-strip div {
+      max-width: 1240px; margin: 0 auto; padding: 0.5rem 1.5rem;
+    }
+    .mode-strip strong { color: var(--text); font-weight: 600; }
+
+    /* ---------- shell ---------- */
+    .shell {
+      max-width: 1240px; margin: 0 auto; padding: 1.5rem;
+      display: grid; grid-template-columns: 244px 1fr; gap: 1.5rem;
+      align-items: start;
+    }
+    .sidebar {
+      background: var(--bg-card); border: 1px solid var(--border);
+      border-radius: 0.75rem; padding: 1rem; position: sticky; top: 5.6rem;
+    }
+    .side-label {
+      font-size: 0.7rem; font-weight: 700; letter-spacing: 0.1em;
+      text-transform: uppercase; color: var(--muted);
+      margin: 0 0 0.6rem 0.35rem;
+    }
+    .tool-btn {
+      display: block; width: 100%; text-align: left; cursor: pointer;
+      background: none; border: 1px solid transparent; border-radius: 0.5rem;
+      padding: 0.5rem 0.6rem; margin-bottom: 0.15rem;
+      font: inherit; color: var(--text); line-height: 1.35;
+      transition: background 0.15s ease, border-color 0.15s ease;
+    }
+    .tool-btn:hover { background: var(--bg-surface); }
+    .tool-btn[aria-current="true"] {
+      background: var(--accent-glow); border-color: var(--border-hover);
+    }
+    .tool-btn .t-name { font-weight: 600; font-size: 0.9rem; display: block; }
+    .tool-btn .t-sub { font-size: 0.78rem; color: var(--muted); display: block; }
+    .side-foot {
+      margin-top: 1rem; padding-top: 0.85rem; border-top: 1px solid var(--border);
+      font-size: 0.78rem; color: var(--muted);
+    }
+
+    /* ---------- panels ---------- */
+    .panel {
+      background: var(--bg-card); border: 1px solid var(--border);
+      border-radius: 0.75rem; padding: 1.25rem 1.4rem; margin-bottom: 1.25rem;
+    }
+    .panel h2 {
+      font-size: 0.72rem; font-weight: 700; letter-spacing: 0.1em;
+      text-transform: uppercase; color: var(--muted);
+      margin: 0 0 0.85rem;
+    }
+    .tool-title { font-size: 1.5rem; font-weight: 700; margin: 0 0 0.2rem; letter-spacing: -0.02em; }
+    .tool-sub { color: var(--muted); margin: 0 0 1.25rem; }
+
+    textarea.rule {
+      width: 100%; min-height: 5.5rem; resize: vertical;
+      font-family: 'JetBrains Mono', monospace; font-size: 0.86rem; line-height: 1.6;
+      color: var(--text); background: var(--bg-surface);
+      border: 1px solid var(--border); border-radius: 0.5rem; padding: 0.75rem 0.85rem;
+    }
+    textarea.rule:focus { outline: none; border-color: var(--border-hover); }
+
+    .btn {
+      cursor: pointer; font: inherit; font-weight: 600; font-size: 0.9rem;
+      border-radius: 0.5rem; padding: 0.55rem 1.1rem; border: 1px solid transparent;
+      transition: background 0.15s ease, border-color 0.15s ease;
+    }
+    .btn-primary { background: var(--accent); color: #fff; }
+    .btn-primary:hover { background: #0369a1; }
+    .btn-primary:disabled { background: #94a3b8; cursor: default; }
+    .btn-secondary { background: var(--bg); color: var(--text); border-color: var(--border); }
+    .btn-secondary:hover { border-color: var(--border-hover); }
+    .btn-row { display: flex; flex-wrap: wrap; gap: 0.6rem; align-items: center; margin-top: 0.85rem; }
+
+    .chip {
+      cursor: pointer; font: inherit; font-size: 0.8rem; font-weight: 500;
+      font-family: 'JetBrains Mono', monospace;
+      background: var(--bg-surface); color: var(--text);
+      border: 1px solid var(--border); border-radius: 999px;
+      padding: 0.25rem 0.75rem;
+    }
+    .chip:hover { border-color: var(--border-hover); color: var(--accent); }
+
+    .hint { font-size: 0.8rem; color: var(--muted); margin: 0.7rem 0 0; }
+
+    /* ---------- build pipeline ---------- */
+    .pipeline { list-style: none; margin: 1rem 0 0; padding: 0; font-size: 0.86rem; }
+    .pipeline li {
+      display: flex; align-items: center; gap: 0.6rem; padding: 0.22rem 0;
+      color: var(--muted); opacity: 0.35; transition: opacity 0.2s ease, color 0.2s ease;
+    }
+    .pipeline li.active { opacity: 1; color: var(--text); }
+    .pipeline li.done { opacity: 1; color: var(--muted); }
+    .pipeline .tick { width: 1rem; text-align: center; color: var(--ok); font-weight: 700; }
+    .pipeline li.failed { opacity: 1; color: var(--danger); }
+    .pipeline li.failed .tick { color: var(--danger); }
+
+    .result-card {
+      margin-top: 1rem; border-radius: 0.6rem; padding: 0.9rem 1rem;
+      border: 1px solid var(--border); background: var(--ok-bg); border-color: rgba(5,150,105,0.3);
+    }
+    .result-card.bad { background: var(--danger-bg); border-color: rgba(225,29,72,0.3); }
+    .result-card .rc-head { font-weight: 600; font-size: 0.9rem; margin-bottom: 0.35rem; color: var(--ok); }
+    .result-card.bad .rc-head { color: var(--danger); }
+    .result-card .rc-body { font-size: 0.85rem; color: var(--text); }
+    .endpoint {
+      font-family: 'JetBrains Mono', monospace; font-size: 0.8rem;
+      background: var(--bg); border: 1px solid var(--border);
+      border-radius: 0.35rem; padding: 0.35rem 0.55rem; display: inline-block; margin-top: 0.5rem;
+      word-break: break-all;
+    }
+
+    /* ---------- inputs ---------- */
+    .fields { display: grid; grid-template-columns: repeat(auto-fit, minmax(190px, 1fr)); gap: 0.9rem; }
+    .field label {
+      display: block; font-size: 0.75rem; font-weight: 600; letter-spacing: 0.04em;
+      text-transform: uppercase; color: var(--muted); margin-bottom: 0.3rem;
+    }
+    .field input {
+      width: 100%; font-family: 'JetBrains Mono', monospace; font-size: 0.95rem;
+      color: var(--text); background: var(--bg-surface);
+      border: 1px solid var(--border); border-radius: 0.5rem; padding: 0.5rem 0.65rem;
+    }
+    .field input:focus { outline: none; border-color: var(--border-hover); }
+    .field .fhint { font-size: 0.74rem; color: var(--muted); margin-top: 0.25rem; }
+
+    /* ---------- tabs ---------- */
+    .tabs { display: flex; gap: 0.3rem; border-bottom: 1px solid var(--border); margin-bottom: 1.1rem; }
+    .tab {
+      cursor: pointer; font: inherit; font-size: 0.85rem; font-weight: 600;
+      background: none; border: none; border-bottom: 2px solid transparent;
+      padding: 0.45rem 0.75rem; color: var(--muted); margin-bottom: -1px;
+    }
+    .tab[aria-selected="true"] { color: var(--accent); border-bottom-color: var(--accent); }
+
+    .headline { display: flex; flex-wrap: wrap; gap: 2.2rem; margin-bottom: 1.2rem; }
+    .headline .hv { font-size: 2rem; font-weight: 700; letter-spacing: -0.02em; line-height: 1.1; font-family: 'JetBrains Mono', monospace; }
+    .headline .hl { font-size: 0.78rem; color: var(--muted); text-transform: uppercase; letter-spacing: 0.05em; }
+    .headline .hv.bad { color: var(--danger); }
+    .headline .hv.good { color: var(--ok); }
+
+    table.breakdown { width: 100%; border-collapse: collapse; font-size: 0.88rem; }
+    table.breakdown td { padding: 0.4rem 0; border-bottom: 1px solid var(--border); }
+    table.breakdown td:last-child { text-align: right; font-family: 'JetBrains Mono', monospace; }
+    table.breakdown tr.total td { font-weight: 700; border-bottom: none; border-top: 2px solid var(--text); }
+    table.breakdown tr.muted td { color: var(--muted); }
+
+    pre.code {
+      background: var(--code-bg); color: var(--code-text);
+      border-radius: 0.6rem; padding: 0.9rem 1rem; overflow-x: auto;
+      font-size: 0.8rem; line-height: 1.65; margin: 0 0 0.85rem;
+    }
+    pre.code .k { color: #7dd3fc; }
+    .kv { display: grid; grid-template-columns: 150px 1fr; gap: 0.35rem 1rem; font-size: 0.86rem; }
+    .kv dt { color: var(--muted); }
+    .kv dd { margin: 0; font-family: 'JetBrains Mono', monospace; }
+
+    /* ---------- safety ---------- */
+    .safety ul { list-style: none; margin: 0; padding: 0; font-size: 0.88rem; }
+    .safety li { padding: 0.22rem 0; display: flex; gap: 0.6rem; }
+    .safety li::before { content: '✓'; color: var(--ok); font-weight: 700; }
+    .safety li.no::before { content: '✕'; color: var(--danger); }
+    .caveat {
+      margin-top: 0.9rem; padding-top: 0.8rem; border-top: 1px solid var(--border);
+      font-size: 0.8rem; color: var(--muted);
+    }
+
+    @media (max-width: 900px) {
+      .shell { grid-template-columns: 1fr; }
+      .sidebar { position: static; }
+      .nav-links { display: none; }
+    }
+  </style>
+</head>
+<body>
+
+<header>
+  <div class="nav">
+    <a href="index.html" class="nav-brand">
+      <img class="logo-mark" src="mark.png" alt="" width="36" height="36">
+      <span class="brand-word">ActionForge</span>
+    </a>
+    <span class="demo-badge">Demo</span>
+    <span class="nav-spacer"></span>
+    <nav class="nav-links">
+      <a href="index.html#quickstart">Quickstart</a>
+      <a href="index.html#pricing">Pricing</a>
+      <a href="index.html#start">Get an API key</a>
+    </nav>
+  </div>
+</header>
+
+<div class="mode-strip">
+  <div>
+    <strong>This page runs the five tools in your browser.</strong>
+    Nothing is sent anywhere, and no tool is generated live — the build step replays a
+    generation that has already happened. The code each tool runs is on the
+    <em>Audit</em> tab, and it is the same code the hosted worker runs.
+  </div>
+</div>
+
+<div class="shell">
+
+  <aside class="sidebar">
+    <p class="side-label">Your tools</p>
+    <div id="toolList"></div>
+    <div class="side-foot">
+      Five tools, each a pure function of its input.
+      <a href="index.html#start">Build your own →</a>
+    </div>
+  </aside>
+
+  <main>
+    <h1 class="tool-title" id="toolTitle"></h1>
+    <p class="tool-sub" id="toolSub"></p>
+
+    <!-- 1. describe -->
+    <section class="panel">
+      <h2>Describe the calculation</h2>
+      <textarea class="rule" id="ruleText" spellcheck="false"></textarea>
+      <div class="btn-row">
+        <button class="btn btn-primary" id="buildBtn">Build calculation</button>
+        <button class="chip" id="breakItBtn">try: make it fetch live rates</button>
+      </div>
+      <ul class="pipeline" id="pipeline" hidden></ul>
+      <div id="buildResult"></div>
+    </section>
+
+    <!-- 2. inputs -->
+    <section class="panel">
+      <h2>Inputs</h2>
+      <div class="fields" id="fields"></div>
+      <div class="btn-row" id="quickTests"></div>
+      <div class="btn-row">
+        <button class="btn btn-primary" id="runBtn">Run tool</button>
+        <span class="hint" id="runNote" style="margin:0"></span>
+      </div>
+    </section>
+
+    <!-- 3. output -->
+    <section class="panel">
+      <div class="tabs" role="tablist">
+        <button class="tab" role="tab" data-tab="result" aria-selected="true">Result</button>
+        <button class="tab" role="tab" data-tab="api" aria-selected="false">API</button>
+        <button class="tab" role="tab" data-tab="audit" aria-selected="false">Audit</button>
+      </div>
+      <div id="tabResult"></div>
+      <div id="tabApi" hidden></div>
+      <div id="tabAudit" hidden></div>
+    </section>
+
+    <!-- 4. safety -->
+    <section class="panel safety">
+      <h2>Why this tool is safe to run</h2>
+      <ul>
+        <li>Pure function — numbers in, numbers out</li>
+        <li>Same input gives the same answer, every time</li>
+        <li class="no">No outbound network: <code>fetch</code>, WebSocket, raw sockets</li>
+        <li class="no">No dynamic execution: <code>eval</code>, <code>Function</code>, dynamic <code>import</code></li>
+        <li>Generated code is scanned against that policy <em>before</em> it is deployed</li>
+      </ul>
+      <p class="caveat">
+        The gate is a scan of the generated source paired with a per-request isolate
+        boundary — not a full sandbox, and we do not claim one. On the hosted
+        platform every call's input and result are stored for billing and
+        debugging, so production tools should not be given sensitive data.
+      </p>
+    </section>
+  </main>
+</div>
+
+<script>
+/* ------------------------------------------------------------------ *
+ * Tool implementations.
+ *
+ * These are the functions the page actually executes. The Audit tab
+ * renders each one with Function.prototype.toString(), so the source a
+ * viewer reads is by construction the source that ran — there is no
+ * second copy to drift out of step. Each is self-contained for the same
+ * reason: a shared rounding helper would not appear in the printed source.
+ * ------------------------------------------------------------------ */
+
+function tieredCommission(input) {
+  const { revenue, quota } = input;
+  const threshold = quota * 0.6;
+  if (revenue < threshold) {
+    return {
+      commission: 0,
+      effectiveRate: 0,
+      qualified: false,
+      bands: { base: 0, accelerator: 0, top: 0 }
+    };
+  }
+  const inBase = Math.min(revenue, quota);
+  const inAccelerator = Math.min(Math.max(revenue - quota, 0), quota * 0.5);
+  const inTop = Math.max(revenue - quota * 1.5, 0);
+
+  const base = Math.round(inBase * 0.04 * 100) / 100;
+  const accelerator = Math.round(inAccelerator * 0.07 * 100) / 100;
+  const top = Math.round(inTop * 0.1 * 100) / 100;
+  const commission = Math.round((base + accelerator + top) * 100) / 100;
+
+  return {
+    commission,
+    effectiveRate: revenue === 0 ? 0 : Math.round((commission / revenue) * 10000) / 10000,
+    qualified: true,
+    bands: { base, accelerator, top }
+  };
+}
+
+function businessDayDeadline(input) {
+  const { start, businessDays, holidays } = input;
+  const closed = new Set(holidays);
+  const cursor = new Date(start + "T00:00:00Z");
+  let remaining = businessDays;
+  let weekendDays = 0;
+  let holidayDays = 0;
+
+  while (remaining > 0) {
+    cursor.setUTCDate(cursor.getUTCDate() + 1);
+    const weekday = cursor.getUTCDay();
+    const iso = cursor.toISOString().slice(0, 10);
+    if (weekday === 0 || weekday === 6) { weekendDays += 1; continue; }
+    if (closed.has(iso)) { holidayDays += 1; continue; }
+    remaining -= 1;
+  }
+
+  const elapsed = (cursor - new Date(start + "T00:00:00Z")) / 86400000;
+  return {
+    deadline: cursor.toISOString().slice(0, 10),
+    calendarDays: Math.round(elapsed),
+    weekendDaysSkipped: weekendDays,
+    holidaysSkipped: holidayDays
+  };
+}
+
+function validateIban(input) {
+  const account = String(input.iban).replace(/[\s-]/g, "").toUpperCase();
+  if (!/^[A-Z]{2}[0-9]{2}[A-Z0-9]{11,30}$/.test(account)) {
+    return { valid: false, reason: "malformed", remainder: null, country: account.slice(0, 2) };
+  }
+  const rearranged = account.slice(4) + account.slice(0, 4);
+  const expanded = rearranged.replace(/[A-Z]/g, (c) => String(c.charCodeAt(0) - 55));
+
+  let remainder = 0;
+  for (const digit of expanded) {
+    remainder = (remainder * 10 + Number(digit)) % 97;
+  }
+
+  return {
+    valid: remainder === 1,
+    reason: remainder === 1 ? "ok" : "checksum",
+    remainder,
+    country: account.slice(0, 2)
+  };
+}
+
+function proratedRefund(input) {
+  const { oldPlan, newPlan, changeDay, daysInMonth } = input;
+  const daysRemaining = Math.max(daysInMonth - changeDay, 0);
+
+  const unusedOldPlan = Math.round((oldPlan * daysRemaining / daysInMonth) * 100) / 100;
+  const newPlanCharge = Math.round((newPlan * daysRemaining / daysInMonth) * 100) / 100;
+  const netCharge = Math.round((newPlanCharge - unusedOldPlan) * 100) / 100;
+
+  return { daysRemaining, unusedOldPlan, newPlanCharge, netCharge };
+}
+
+function progressiveWithholding(input) {
+  const BRACKETS = [
+    { upTo: 25000, rate: 0.1 },
+    { upTo: 60000, rate: 0.12 },
+    { upTo: 120000, rate: 0.22 },
+    { upTo: 150000, rate: 0.24 },
+    { upTo: Infinity, rate: 0.32 }
+  ];
+  const { income } = input;
+
+  let tax = 0;
+  let floor = 0;
+  let marginalRate = 0;
+  const perBracket = [];
+
+  for (const bracket of BRACKETS) {
+    const taxableHere = Math.min(income, bracket.upTo) - floor;
+    if (taxableHere <= 0) break;
+    const owed = Math.round(taxableHere * bracket.rate * 100) / 100;
+    perBracket.push({ rate: bracket.rate, taxable: taxableHere, tax: owed });
+    tax += owed;
+    marginalRate = bracket.rate;
+    floor = bracket.upTo;
+  }
+
+  tax = Math.round(tax * 100) / 100;
+  return {
+    tax,
+    marginalRate,
+    effectiveRate: income === 0 ? 0 : Math.round((tax / income) * 10000) / 10000,
+    perBracket
+  };
+}
+
+/* ------------------------------------------------------------------ *
+ * Presentation helpers
+ * ------------------------------------------------------------------ */
+const usd = (n) =>
+  n.toLocaleString("en-US", { style: "currency", currency: "USD", minimumFractionDigits: 2 });
+const pct = (n) => (n * 100).toFixed(2) + "%";
+
+/* ------------------------------------------------------------------ *
+ * Tool catalogue
+ * ------------------------------------------------------------------ */
+const TOOLS = [
+  {
+    id: "commission",
+    name: "Tiered Commission",
+    sub: "Sales compensation",
+    title: "Tiered sales commission",
+    blurb: "A comp plan with an accelerator and a cliff — the kind of rule that lives in a PDF and gets applied differently by every spreadsheet.",
+    toolId: "8f14c0d2-6b7e-4a19-9f3c-21ad55e0b7c4",
+    created: "2026-08-11",
+    fn: tieredCommission,
+    rule:
+      "Pay commission on revenue against quota. Nothing at all if revenue is " +
+      "below 60% of quota. Otherwise 4% on revenue up to quota, 7% on the part " +
+      "between quota and 150% of quota, and 10% on anything above 150% of quota. " +
+      "Report the total, the effective rate, and the amount from each band.",
+    fields: [
+      { key: "revenue", label: "Revenue", value: 200000, hint: "closed in the period" },
+      { key: "quota", label: "Quota", value: 100000, hint: "target for the period" }
+    ],
+    quickTests: [
+      { label: "revenue 59,999", set: { revenue: 59999 } },
+      { label: "revenue 60,001", set: { revenue: 60001 } },
+      { label: "revenue 200,000", set: { revenue: 200000 } }
+    ],
+    note: "Try 59,999 then 60,001 — one dollar of revenue either side of the cliff.",
+    view: (out, inp) => ({
+      headline: [
+        { v: usd(out.commission), l: "Total commission", cls: out.qualified ? "" : "bad" },
+        { v: pct(out.effectiveRate), l: "Effective rate" }
+      ],
+      rows: out.qualified
+        ? [
+            ["Cliff — 60% of quota", usd(inp.quota * 0.6)],
+            ["4% band, up to quota", usd(out.bands.base)],
+            ["7% band, quota → 150%", usd(out.bands.accelerator)],
+            ["10% band, above 150%", usd(out.bands.top)],
+            ["Total", usd(out.commission), "total"]
+          ]
+        : [
+            ["Cliff — 60% of quota", usd(inp.quota * 0.6)],
+            ["Revenue", usd(inp.revenue)],
+            ["Below the cliff, so nothing is earned", "—", "muted"],
+            ["Total", usd(out.commission), "total"]
+          ]
+    })
+  },
+  {
+    id: "deadline",
+    name: "Business-Day Deadline",
+    sub: "SLA and notice periods",
+    title: "Business-day deadline",
+    blurb: "Weekends and a supplied holiday list. Add one holiday and the answer moves — which is why nobody should be doing this in their head.",
+    toolId: "c3b9a71e-4d52-4c88-b0f6-9e7a2c14d380",
+    created: "2026-08-11",
+    fn: businessDayDeadline,
+    rule:
+      "Given a start date, a number of business days, and a list of holiday " +
+      "dates, return the deadline. Saturdays, Sundays and any supplied holiday " +
+      "do not count. Report how many weekend days and holidays were skipped.",
+    fields: [
+      { key: "start", label: "Start date", value: "2026-08-17", type: "text", hint: "a Monday" },
+      { key: "businessDays", label: "Business days", value: 5 },
+      { key: "holidays", label: "Holidays", value: "2026-08-20", type: "list", hint: "comma separated" }
+    ],
+    quickTests: [
+      { label: "no holidays", set: { holidays: "" } },
+      { label: "one holiday", set: { holidays: "2026-08-20" } },
+      { label: "two holidays", set: { holidays: "2026-08-20,2026-08-24" } }
+    ],
+    note: "Clear the holiday field and run it again — the deadline moves a day earlier.",
+    view: (out) => ({
+      headline: [
+        { v: out.deadline, l: "Deadline" },
+        { v: String(out.calendarDays), l: "Calendar days" }
+      ],
+      rows: [
+        ["Weekend days skipped", String(out.weekendDaysSkipped)],
+        ["Holidays skipped", String(out.holidaysSkipped)],
+        ["Calendar days elapsed", String(out.calendarDays), "total"]
+      ]
+    })
+  },
+  {
+    id: "iban",
+    name: "IBAN Validator",
+    sub: "Checksum validation",
+    title: "IBAN check-digit validation",
+    blurb: "The mod-97 checksum from ISO 13616. One published definition, one right answer — and the failure mode is a payment sent into the void.",
+    toolId: "5a2f8e34-9c17-4b6d-8a05-7d3e91c2f6ab",
+    created: "2026-08-12",
+    fn: validateIban,
+    rule:
+      "Validate an IBAN. Check the country and length pattern, move the first " +
+      "four characters to the end, replace each letter with its position in the " +
+      "alphabet plus nine, and take the result modulo 97. It is valid only when " +
+      "the remainder is 1. Report the remainder either way.",
+    fields: [
+      { key: "iban", label: "IBAN", value: "DE89370400440532013000", type: "text" }
+    ],
+    quickTests: [
+      { label: "valid", set: { iban: "DE89370400440532013000" } },
+      { label: "last digit changed", set: { iban: "DE89370400440532013001" } },
+      { label: "too short", set: { iban: "DE8937040044" } }
+    ],
+    note: "Change any single character. The remainder stops being 1.",
+    view: (out) => ({
+      headline: [
+        { v: out.valid ? "VALID" : "INVALID", l: "Result", cls: out.valid ? "good" : "bad" },
+        { v: out.remainder === null ? "—" : String(out.remainder), l: "mod-97 remainder" }
+      ],
+      rows: [
+        ["Country", out.country],
+        ["Remainder required", "1"],
+        ["Remainder computed", out.remainder === null ? "not reached" : String(out.remainder)],
+        ["Reason", out.reason, "muted"]
+      ]
+    })
+  },
+  {
+    id: "refund",
+    name: "Prorated Refund",
+    sub: "Subscription billing",
+    title: "Mid-cycle plan change",
+    blurb: "Credit the unused part of the old plan, charge the remaining days of the new one. Getting it wrong by a day is a support ticket.",
+    toolId: "e71d4b60-2a8c-49f5-b3d1-6c05f8a29e7b",
+    created: "2026-08-12",
+    fn: proratedRefund,
+    rule:
+      "A customer changes plan mid-cycle. Credit the unused days of the old " +
+      "plan and charge the same remaining days on the new plan, both prorated " +
+      "by days in the month. Return the days remaining, both amounts, and the " +
+      "net charge.",
+    fields: [
+      { key: "oldPlan", label: "Old plan", value: 100 },
+      { key: "newPlan", label: "New plan", value: 200 },
+      { key: "changeDay", label: "Change on day", value: 19 },
+      { key: "daysInMonth", label: "Days in month", value: 31 }
+    ],
+    quickTests: [
+      { label: "day 19 of 31", set: { changeDay: 19, daysInMonth: 31 } },
+      { label: "day 1 of 31", set: { changeDay: 1, daysInMonth: 31 } },
+      { label: "last day", set: { changeDay: 31, daysInMonth: 31 } }
+    ],
+    note: "On the last day of the month there is nothing left to prorate — the net charge is zero.",
+    view: (out) => ({
+      headline: [
+        { v: usd(out.netCharge), l: "Net charge" },
+        { v: String(out.daysRemaining), l: "Days remaining" }
+      ],
+      rows: [
+        ["Unused old plan (credit)", "−" + usd(out.unusedOldPlan)],
+        ["New plan, remaining days", usd(out.newPlanCharge)],
+        ["Net charge", usd(out.netCharge), "total"]
+      ]
+    })
+  },
+  {
+    id: "tax",
+    name: "Tax Withholding",
+    sub: "Progressive brackets",
+    title: "Progressive withholding",
+    blurb: "Five bands, applied to the slice of income inside each. The common error is applying the top rate to the whole amount.",
+    toolId: "9d6c31af-7e80-4a25-95b8-3f14e0c78d52",
+    created: "2026-08-13",
+    fn: progressiveWithholding,
+    rule:
+      "Compute annual withholding across progressive bands: 10% to 25,000, " +
+      "12% to 60,000, 22% to 120,000, 24% to 150,000, and 32% above that. Each " +
+      "rate applies only to the income inside its band. Return the total, the " +
+      "effective rate, the marginal rate, and the tax from each band.",
+    fields: [
+      { key: "income", label: "Annual income", value: 135000 }
+    ],
+    quickTests: [
+      { label: "24,000", set: { income: 24000 } },
+      { label: "135,000", set: { income: 135000 } },
+      { label: "400,000", set: { income: 400000 } }
+    ],
+    note: "At 135,000 the marginal rate is 24% but the effective rate is 17.41%.",
+    view: (out) => ({
+      headline: [
+        { v: usd(out.tax), l: "Annual tax" },
+        { v: pct(out.effectiveRate), l: "Effective rate" },
+        { v: pct(out.marginalRate), l: "Marginal rate" }
+      ],
+      rows: out.perBracket
+        .map((b) => [
+          (b.rate * 100).toFixed(0) + "% on " + usd(b.taxable),
+          usd(b.tax)
+        ])
+        .concat([["Total", usd(out.tax), "total"]])
+    })
+  }
+];
+
+/* ------------------------------------------------------------------ *
+ * Execution policy.
+ *
+ * The hosted platform scans the *generated code* and refuses to deploy
+ * it. This page has no generated code to scan, so it matches the same
+ * intent one step earlier, in the description. The outcome a viewer sees
+ * is the real 422 body; the mechanism is stated on the refusal card so
+ * nobody leaves thinking a prompt filter is what protects them.
+ * ------------------------------------------------------------------ */
+const POLICY_RULES = [
+  { id: "network.fetch", detail: "calls fetch() — outbound network is not permitted",
+    pattern: /\bfetch(es|ing|ed)?\b|\bhttps?:\/\/|\bapi\s+call|\bcall\s+(an?\s+)?(external|third[- ]party|remote)/i },
+  { id: "network.lookup", detail: "reads data from outside its input — a tool is a pure function of what it is given",
+    pattern: /\b(live|current|real[- ]time|today'?s)\s+(rate|price|quote|data|weather)|\blook\s?up\b.*\b(online|web|internet|service)|\bscrape|\bdownload\b|\bwebhook\b|\bdatabase\b/i },
+  { id: "codeexec.dynamic", detail: "executes code built at runtime — never permitted",
+    pattern: /\beval\b|\bnew Function\b|dynamic import/i }
+];
+
+function scanDescription(text) {
+  return POLICY_RULES.filter((rule) => rule.pattern.test(text))
+    .map((rule) => ({ rule: rule.id, detail: rule.detail }));
+}
+
+/* ------------------------------------------------------------------ *
+ * UI
+ * ------------------------------------------------------------------ */
+const $ = (id) => document.getElementById(id);
+const escapeHtml = (s) =>
+  String(s).replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" })[c]);
+
+let current = TOOLS[0];
+let built = true;          // the selected tool starts in a built state
+let lastRun = null;
+
+function renderSidebar() {
+  $("toolList").innerHTML = TOOLS.map((t) =>
+    '<button class="tool-btn" data-id="' + t.id + '" aria-current="' + (t.id === current.id) + '">' +
+      '<span class="t-name">' + escapeHtml(t.name) + '</span>' +
+      '<span class="t-sub">' + escapeHtml(t.sub) + '</span>' +
+    '</button>'
+  ).join("");
+  $("toolList").querySelectorAll(".tool-btn").forEach((btn) => {
+    btn.addEventListener("click", () => selectTool(btn.dataset.id));
+  });
+}
+
+function renderFields() {
+  $("fields").innerHTML = current.fields.map((f) =>
+    '<div class="field">' +
+      '<label for="f_' + f.key + '">' + escapeHtml(f.label) + '</label>' +
+      '<input id="f_' + f.key + '" value="' + escapeHtml(f.value) + '"' +
+        (f.type ? "" : ' type="number" step="any"') + ' />' +
+      (f.hint ? '<div class="fhint">' + escapeHtml(f.hint) + "</div>" : "") +
+    "</div>"
+  ).join("");
+  $("fields").querySelectorAll("input").forEach((el) => el.addEventListener("input", run));
+
+  $("quickTests").innerHTML =
+    '<span class="hint" style="margin:0 0.2rem 0 0">Quick tests</span>' +
+    current.quickTests.map((q, i) =>
+      '<button class="chip" data-i="' + i + '">' + escapeHtml(q.label) + "</button>"
+    ).join("");
+  $("quickTests").querySelectorAll(".chip").forEach((btn) => {
+    btn.addEventListener("click", () => {
+      const preset = current.quickTests[Number(btn.dataset.i)].set;
+      for (const [key, value] of Object.entries(preset)) {
+        const el = $("f_" + key);
+        if (el) el.value = value;
+      }
+      run();
+    });
+  });
+
+  $("runNote").textContent = current.note || "";
+}
+
+function readInput() {
+  const out = {};
+  for (const f of current.fields) {
+    const raw = $("f_" + f.key).value;
+    if (f.type === "list") {
+      out[f.key] = raw.split(",").map((s) => s.trim()).filter(Boolean);
+    } else if (f.type === "text") {
+      out[f.key] = raw;
+    } else {
+      out[f.key] = Number(raw);
+    }
+  }
+  return out;
+}
+
+function selectTool(id) {
+  current = TOOLS.find((t) => t.id === id) || TOOLS[0];
+  built = true;
+  $("toolTitle").textContent = current.title;
+  $("toolSub").textContent = current.blurb;
+  $("ruleText").value = current.rule;
+  $("pipeline").hidden = true;
+  $("buildResult").innerHTML = "";
+  renderSidebar();
+  renderFields();
+  run();
+}
+
+/* --- build ---------------------------------------------------------- */
+const STAGES = [
+  "Generating the tool with Claude",
+  "Scanning it against the execution policy",
+  "Deploying an isolated worker",
+  "Registering the route"
+];
+
+async function build() {
+  const description = $("ruleText").value;
+  const violations = scanDescription(description);
+  const failsAt = violations.length ? 1 : -1;
+
+  $("buildBtn").disabled = true;
+  $("buildResult").innerHTML = "";
+  const list = $("pipeline");
+  list.hidden = false;
+  list.innerHTML = STAGES.map((s) =>
+    '<li><span class="tick">·</span><span>' + escapeHtml(s) + "</span></li>"
+  ).join("");
+  const items = [...list.children];
+
+  for (let i = 0; i < items.length; i++) {
+    items[i].classList.add("active");
+    await new Promise((r) => setTimeout(r, 420));
+    if (i === failsAt) {
+      items[i].classList.remove("active");
+      items[i].classList.add("failed");
+      items[i].querySelector(".tick").textContent = "✕";
+      // Nothing was deployed, so the panes below must stop showing the
+      // previous tool's answer — otherwise the page contradicts the refusal.
+      built = false;
+      showRefusal(violations);
+      renderTabs();
+      $("buildBtn").disabled = false;
+      return;
+    }
+    items[i].classList.remove("active");
+    items[i].classList.add("done");
+    items[i].querySelector(".tick").textContent = "✓";
+  }
+
+  built = true;
+  $("buildResult").innerHTML =
+    '<div class="result-card">' +
+      '<div class="rc-head">Tool created</div>' +
+      '<div class="rc-body">' + escapeHtml(current.title) +
+        ' — generated, scanned, deployed. Call it at:' +
+        '<div class="endpoint">POST /api/invoke/' + current.toolId + "</div>" +
+      "</div>" +
+    "</div>" +
+    '<p class="hint">Replayed. On the platform this step calls Claude and takes ' +
+    'a few seconds; the code it produced is on the <em>Audit</em> tab.</p>';
+  $("buildBtn").disabled = false;
+  run();
+}
+
+function showRefusal(violations) {
+  const body = {
+    error: "Generated tool violates the execution policy",
+    details:
+      "The tool ActionForge generated for this description reaches outside what a " +
+      "hosted tool may do, so it was not deployed. Rephrase the tool to compute " +
+      "purely from its input. Violations: " +
+      violations.map((v) => v.rule + " (" + v.detail + ")").join("; ")
+  };
+  $("buildResult").innerHTML =
+    '<div class="result-card bad">' +
+      '<div class="rc-head">422 — refused before deploy</div>' +
+      '<div class="rc-body">Nothing was deployed, and the description was not saved as a tool.</div>' +
+    "</div>" +
+    '<pre class="code" style="margin-top:0.85rem">' + escapeHtml(JSON.stringify(body, null, 2)) + "</pre>" +
+    '<p class="hint">On the platform the gate scans the <em>generated code</em>, not the ' +
+    'description — so it holds however the request is phrased. This page has no ' +
+    'generated code to scan, so it matches the same intent one step earlier.</p>';
+}
+
+/* --- run ------------------------------------------------------------ */
+function run() {
+  const input = readInput();
+  let output, error = null;
+  try {
+    output = current.fn(input);
+  } catch (err) {
+    error = err;
+  }
+  lastRun = { input, output, error, at: new Date() };
+  renderTabs();
+}
+
+function renderTabs() {
+  const { input, output, error } = lastRun;
+
+  /* Result */
+  if (error || !built) {
+    $("tabResult").innerHTML =
+      '<p class="hint">' +
+      (built ? "Could not run: " + escapeHtml(error.message)
+             : "No tool is deployed — the last build was refused by the policy gate.") +
+      "</p>";
+  } else {
+    const v = current.view(output, input);
+    $("tabResult").innerHTML =
+      '<div class="headline">' +
+        v.headline.map((h) =>
+          '<div><div class="hv ' + (h.cls || "") + '">' + escapeHtml(h.v) + "</div>" +
+          '<div class="hl">' + escapeHtml(h.l) + "</div></div>"
+        ).join("") +
+      "</div>" +
+      '<table class="breakdown"><tbody>' +
+        v.rows.map((r) =>
+          '<tr class="' + (r[2] || "") + '"><td>' + escapeHtml(r[0]) + "</td><td>" +
+          escapeHtml(r[1]) + "</td></tr>"
+        ).join("") +
+      "</tbody></table>";
+  }
+
+  /* API */
+  $("tabApi").innerHTML =
+    '<pre class="code">' + escapeHtml(
+      "POST /api/invoke/" + current.toolId + "\n" +
+      "Authorization: Bearer af_...\n" +
+      "Content-Type: application/json\n\n" +
+      JSON.stringify(input, null, 2)
+    ) + "</pre>" +
+    '<pre class="code">' + escapeHtml(
+      built && !error
+        ? JSON.stringify({ toolId: current.toolId, result: output, executionMs: 3 }, null, 2)
+        : JSON.stringify({ error: "Tool not found" }, null, 2)
+    ) + "</pre>" +
+    '<p class="hint">The request and response shapes are the real ones. This page ' +
+    'makes no network calls — the endpoint is shown for its contract, not to be curled.</p>';
+
+  /* Audit */
+  $("tabAudit").innerHTML =
+    '<dl class="kv">' +
+      "<dt>Tool</dt><dd>" + escapeHtml(current.name) + "</dd>" +
+      "<dt>Tool id</dt><dd>" + current.toolId + "</dd>" +
+      "<dt>Version</dt><dd>v1</dd>" +
+      "<dt>Generated</dt><dd>" + current.created + "</dd>" +
+      "<dt>Executed</dt><dd>" + lastRun.at.toISOString() + "</dd>" +
+      "<dt>Input</dt><dd>" + escapeHtml(JSON.stringify(input)) + "</dd>" +
+      "<dt>Output</dt><dd>" + escapeHtml(built && !error ? JSON.stringify(output) : "—") + "</dd>" +
+    "</dl>" +
+    '<p class="hint">The code below is what this page just ran, printed from the ' +
+    "function itself — so it cannot drift from what produced the number above.</p>" +
+    '<pre class="code">' + escapeHtml(current.fn.toString()) + "</pre>";
+}
+
+/* --- wiring --------------------------------------------------------- */
+document.querySelectorAll(".tab").forEach((tab) => {
+  tab.addEventListener("click", () => {
+    document.querySelectorAll(".tab").forEach((t) =>
+      t.setAttribute("aria-selected", String(t === tab)));
+    for (const name of ["result", "api", "audit"]) {
+      $("tab" + name[0].toUpperCase() + name.slice(1)).hidden = tab.dataset.tab !== name;
+    }
+  });
+});
+
+$("buildBtn").addEventListener("click", build);
+$("breakItBtn").addEventListener("click", () => {
+  $("ruleText").value =
+    current.rule + " Fetch the current rates from an external API before computing.";
+  build();
+});
+
+selectTool(TOOLS[0].id);
+</script>
+</body>
+</html>
