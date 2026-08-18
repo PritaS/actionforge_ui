@@ -253,6 +253,18 @@
     .kv dt { color: var(--muted); }
     .kv dd { margin: 0; font-family: 'JetBrains Mono', monospace; }
 
+    .receipt {
+      margin-top: 1.1rem; padding: 0.8rem 1rem;
+      border: 1px solid rgba(5, 150, 105, 0.3); background: var(--ok-bg);
+      border-radius: 0.6rem; font-size: 0.85rem;
+      display: flex; flex-wrap: wrap; gap: 0.15rem 1.4rem; align-items: center;
+    }
+    .receipt .rk { color: var(--ok); }
+    .receipt .rt {
+      margin-left: auto; font-family: 'JetBrains Mono', monospace;
+      font-weight: 600; color: var(--text);
+    }
+
     /* ---------- safety ---------- */
     .safety ul { list-style: none; margin: 0; padding: 0; font-size: 0.88rem; }
     .safety li { padding: 0.22rem 0; display: flex; gap: 0.6rem; }
@@ -289,12 +301,7 @@
 </header>
 
 <div class="mode-strip">
-  <div>
-    <strong>This page runs the five tools in your browser.</strong>
-    Nothing is sent anywhere, and no tool is generated live — the build step replays a
-    generation that has already happened. The code each tool runs is on the
-    <em>Audit</em> tab, and it is the same code the hosted worker runs.
-  </div>
+  <div id="modeStrip"></div>
 </div>
 
 <div class="shell">
@@ -503,6 +510,57 @@ function progressiveWithholding(input) {
     effectiveRate: income === 0 ? 0 : Math.round((tax / income) * 10000) / 10000,
     perBracket
   };
+}
+
+/* ------------------------------------------------------------------ *
+ * Hosted API.
+ *
+ * Filled in, this page stops computing locally and calls the real thing:
+ * a public, invoke-only, rate-limited endpoint on the deployment. The local
+ * functions below stay as the fallback, so the page still works when the
+ * deployment is down, when the demo is switched off, or offline on a laptop
+ * in a meeting room with no wifi.
+ *
+ * Get these from `npm run demo:create` on the deployment.
+ * ------------------------------------------------------------------ */
+const REMOTE = {
+  api: "",  // e.g. "https://actionforge.up.railway.app" — empty means local only
+  toolIds: {
+    commission: "",
+    deadline: "",
+    iban: "",
+    refund: "",
+    tax: ""
+  }
+};
+
+const REMOTE_TIMEOUT_MS = 6000;
+
+const remoteIdFor = (tool) => (REMOTE.api ? REMOTE.toolIds[tool.id] || "" : "");
+
+/** Calls the hosted tool. Throws on anything that is not a clean 200. */
+async function callRemote(tool, input) {
+  const id = remoteIdFor(tool);
+  const controller = new AbortController();
+  const timer = setTimeout(() => controller.abort(), REMOTE_TIMEOUT_MS);
+  try {
+    const res = await fetch(REMOTE.api + "/api/demo/invoke/" + id, {
+      method: "POST",
+      headers: { "content-type": "application/json" },
+      body: JSON.stringify(input),
+      signal: controller.signal
+    });
+    const body = await res.json();
+    if (!res.ok) {
+      const err = new Error(body.error || "HTTP " + res.status);
+      err.status = res.status;
+      err.body = body;
+      throw err;
+    }
+    return body;
+  } finally {
+    clearTimeout(timer);
+  }
 }
 
 /* ------------------------------------------------------------------ *
@@ -777,7 +835,7 @@ function renderFields() {
       (f.hint ? '<div class="fhint">' + escapeHtml(f.hint) + "</div>" : "") +
     "</div>"
   ).join("");
-  $("fields").querySelectorAll("input").forEach((el) => el.addEventListener("input", () => run(true)));
+  $("fields").querySelectorAll("input").forEach((el) => el.addEventListener("input", () => run({ remote: false, advance: true })));
 
   $("quickTests").innerHTML =
     '<span class="hint" style="margin:0 0.2rem 0 0">Try to break it</span>' +
@@ -791,7 +849,7 @@ function renderFields() {
         const el = $("f_" + key);
         if (el) el.value = value;
       }
-      run(true);
+      run({ remote: true, advance: true });
     });
   });
 
@@ -824,7 +882,7 @@ function selectTool(id) {
   renderSidebar();
   renderFields();
   setStage(1, 0);
-  run();
+  run({ remote: true });
 }
 
 /* --- build ---------------------------------------------------------- */
@@ -883,7 +941,7 @@ async function build() {
     'a few seconds; the code it produced is on the <em>Audit</em> tab.</p>';
   $("buildBtn").disabled = false;
   setStage(3, 2);
-  run();
+  run({ remote: true });
 }
 
 function showRefusal(violations) {
@@ -907,18 +965,89 @@ function showRefusal(violations) {
 }
 
 /* --- run ------------------------------------------------------------ */
-function run(userInitiated) {
+
+/**
+ * Guards against a slow response overwriting a newer one. Typing is local and
+ * instant; only explicit actions reach the network, but a demo is exactly where
+ * someone clicks three chips in a second.
+ */
+let runToken = 0;
+
+/**
+ * Computes locally for immediate feedback, then — when asked, and only when
+ * asked — calls the hosted tool and replaces the result with the real one.
+ *
+ * Typing never reaches the network. A keystroke-per-request page would burn the
+ * rate limit in one sentence and feel worse than a local preview does.
+ */
+async function run(opts) {
+  const remote = Boolean(opts && opts.remote);
+  const advance = Boolean(opts && opts.advance);
+  const token = ++runToken;
   const input = readInput();
+
   let output, error = null;
   try {
     output = current.fn(input);
   } catch (err) {
     error = err;
   }
-  lastRun = { input, output, error, at: new Date() };
+  lastRun = { input, output, error, at: new Date(), source: "local" };
   renderTabs();
-  // Testing it is step 3; once they have, the next thing to look at is the call.
-  if (userInitiated && built) setStage(4, 3);
+  if (advance && built) setStage(4, 3);
+
+  if (!remote || !built || error || !remoteIdFor(current)) return;
+
+  lastRun.pending = true;
+  renderTabs();
+  try {
+    const body = await callRemote(current, input);
+    if (token !== runToken) return;  // a newer run has already landed
+    lastRun = {
+      input,
+      output: body.result,
+      error: null,
+      at: new Date(),
+      source: "remote",
+      executionMs: body.executionMs,
+      checks: body.checks,
+      live: body.live
+    };
+  } catch (err) {
+    if (token !== runToken) return;
+    lastRun.pending = false;
+    lastRun.remoteError = err.status === 429
+      ? "the demo endpoint is rate limited from this address"
+      : err.message || "the hosted API could not be reached";
+  }
+  renderTabs();
+}
+
+/** The line under a result that says where the number actually came from. */
+function provenance() {
+  if (lastRun.pending) {
+    return '<p class="hint">Calling the hosted tool…</p>';
+  }
+  if (lastRun.source === "remote" && lastRun.live) {
+    return '<div class="receipt">' +
+      '<div class="rk">✓ Input validated against the schema</div>' +
+      '<div class="rk">✓ Executed on an isolated worker</div>' +
+      '<div class="rk">✓ Output validated before it returned</div>' +
+      '<div class="rt">' + lastRun.executionMs + ' ms</div>' +
+      "</div>" +
+      '<p class="hint">Computed by the hosted tool, not by this page.</p>';
+  }
+  if (lastRun.source === "remote" && !lastRun.live) {
+    return '<p class="hint">The deployment answered, but it is running with mocked ' +
+      "credentials — so the result was synthesized from the output schema rather " +
+      "than computed by a worker. Not a real execution.</p>";
+  }
+  if (lastRun.remoteError) {
+    return '<p class="hint">Computed in this browser — ' +
+      escapeHtml(lastRun.remoteError) + ". The hosted tool runs the same rule.</p>";
+  }
+  return '<p class="hint">Computed in this browser. The hosted tool runs the same ' +
+    "rule on an isolated worker; see the <em>Audit</em> tab for the code.</p>";
 }
 
 function renderTabs() {
@@ -945,24 +1074,40 @@ function renderTabs() {
           '<tr class="' + (r[2] || "") + '"><td>' + escapeHtml(r[0]) + "</td><td>" +
           escapeHtml(r[1]) + "</td></tr>"
         ).join("") +
-      "</tbody></table>";
+      "</tbody></table>" +
+      provenance();
   }
 
   /* API */
+  const usingRemote = lastRun.source === "remote";
+  const shownId = usingRemote ? remoteIdFor(current) : current.toolId;
   $("tabApi").innerHTML =
     '<pre class="code">' + escapeHtml(
-      "POST /api/invoke/" + current.toolId + "\n" +
+      "POST " + (usingRemote ? REMOTE.api : "") + "/api/invoke/" + shownId + "\n" +
       "Authorization: Bearer af_...\n" +
       "Content-Type: application/json\n\n" +
       JSON.stringify(input, null, 2)
     ) + "</pre>" +
     '<pre class="code">' + escapeHtml(
       built && !error
-        ? JSON.stringify({ toolId: current.toolId, result: output, executionMs: 3 }, null, 2)
+        ? JSON.stringify(
+            usingRemote
+              ? { toolId: shownId, result: output, executionMs: lastRun.executionMs }
+              : { toolId: shownId, result: output, executionMs: "…" },
+            null,
+            2
+          )
         : JSON.stringify({ error: "Tool not found" }, null, 2)
     ) + "</pre>" +
-    '<p class="hint">The request and response shapes are the real ones. This page ' +
-    'makes no network calls — the endpoint is shown for its contract, not to be curled.</p>';
+    '<p class="hint">' +
+    (usingRemote
+      ? "This is the call this page just made, against the authenticated endpoint's " +
+        "contract. The page itself reaches a public, invoke-only proxy so no key " +
+        "is shipped to your browser."
+      : "The request and response shapes are the real ones. The hosted API is not " +
+        "configured for this page, so the response above was computed locally and " +
+        "carries no execution time.") +
+    "</p>";
 
   /* Audit */
   $("tabAudit").innerHTML =
@@ -972,6 +1117,13 @@ function renderTabs() {
       "<dt>Version</dt><dd>v1</dd>" +
       "<dt>Generated</dt><dd>" + current.created + "</dd>" +
       "<dt>Executed</dt><dd>" + lastRun.at.toISOString() + "</dd>" +
+      "<dt>Ran on</dt><dd>" +
+        (lastRun.source === "remote" && lastRun.live
+          ? "hosted worker"
+          : lastRun.source === "remote"
+            ? "hosted (mocked)"
+            : "this browser") +
+      "</dd>" +
       "<dt>Input</dt><dd>" + escapeHtml(JSON.stringify(input)) + "</dd>" +
       "<dt>Output</dt><dd>" + escapeHtml(built && !error ? JSON.stringify(output) : "—") + "</dd>" +
     "</dl>" +
@@ -992,13 +1144,25 @@ document.querySelectorAll(".tab").forEach((tab) => {
   });
 });
 
-$("runBtn").addEventListener("click", () => run(true));
+$("runBtn").addEventListener("click", () => run({ remote: true, advance: true }));
 $("buildBtn").addEventListener("click", build);
 $("breakItBtn").addEventListener("click", () => {
   $("ruleText").value =
     current.rule + " Fetch the current rates from an external API before computing.";
   build();
 });
+
+/* The strip states which mode the page is actually in, rather than asserting
+   one. It is in the chrome and not a dismissable toast for the same reason. */
+$("modeStrip").innerHTML = REMOTE.api
+  ? "<strong>Running a tool takes a real call to the hosted API.</strong> " +
+    "No tool is generated live, though — the build step replays a generation that " +
+    "has already happened, and says so. If the API cannot be reached, the page " +
+    "falls back to computing in your browser and tells you it did."
+  : "<strong>This page runs the five tools in your browser.</strong> " +
+    "Nothing is sent anywhere, and no tool is generated live — the build step " +
+    "replays a generation that has already happened. The code each tool runs is on " +
+    "the <em>Audit</em> tab, and it is the same rule the hosted worker runs.";
 
 selectTool(TOOLS[0].id);
 </script>
