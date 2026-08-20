@@ -490,6 +490,7 @@
       <a href="#endpoints">API Reference</a>
       <a href="#quickstart">Quickstart</a>
       <a href="#agents">Agent Guide</a>
+      <a href="#mcp">MCP</a>
       <a href="#pricing">Pricing</a>
       <a href="#faq">FAQ</a>
       <a class="nav-cta" href="#start">Get an API key</a>
@@ -985,6 +986,59 @@ if (!created.ready) {
         <tr><td>503</td><td>Tool not ready yet, or a dependency is down → <strong>retry</strong>, do not conclude the tool is broken</td></tr>
       </tbody>
     </table>
+  </section>
+
+  <section id="mcp">
+    <h2>MCP Server <span class="section-tag">Claude Desktop &amp; Claude Code</span></h2>
+    <p>
+      ActionForge ships a Model Context Protocol server so any MCP client — Claude Desktop,
+      Claude Code, or a custom agent — can discover and call your account's tools without
+      writing any glue code. The server is listed in the
+      <a href="https://registry.modelcontextprotocol.io/servers/io.github.PritaS-actionforge" target="_blank" rel="noopener">MCP Registry</a>
+      as <code>io.github.PritaS/actionforge</code>.
+    </p>
+
+    <h3>Install and run</h3>
+    <pre><code>export ACTIONFORGE_API_KEY=af_your_key_here
+npx actionforge-mcp</code></pre>
+    <p>
+      The server starts on <code>stdio</code> and publishes every tool your account owns as an
+      MCP tool. Add new tools via the API and they appear automatically on the next
+      <code>tools/list</code> call — no server restart needed.
+    </p>
+
+    <h3>Claude Desktop config</h3>
+    <p>
+      Add this block to your <code>claude_desktop_config.json</code>
+      (<code>~/Library/Application Support/Claude/</code> on macOS):
+    </p>
+    <pre><code>{
+  "mcpServers": {
+    "actionforge": {
+      "command": "npx",
+      "args": ["actionforge-mcp"],
+      "env": {
+        "ACTIONFORGE_API_KEY": "af_your_key_here"
+      }
+    }
+  }
+}</code></pre>
+
+    <h3>Claude Code config</h3>
+    <pre><code>claude mcp add actionforge -- npx actionforge-mcp</code></pre>
+    <p>
+      Then set <code>ACTIONFORGE_API_KEY</code> in your shell profile and restart Claude Code.
+      All your tools appear in the tool list immediately.
+    </p>
+
+    <h3>Self-hosted deployment</h3>
+    <p>
+      If you run your own ActionForge instance, set <code>ACTIONFORGE_URL</code> alongside the
+      key and the server points at your deployment instead of the hosted service.
+    </p>
+    <pre><code>ACTIONFORGE_URL=https://my-instance.example.com \
+ACTIONFORGE_API_KEY=af_your_key_here \
+npx actionforge-mcp</code></pre>
   </section>
 
   <section id="postman">
