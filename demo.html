@@ -280,6 +280,9 @@
       .sidebar { position: static; }
       .nav-links { display: none; }
     }
+    main { min-width: 0; }
+    .kv { grid-template-columns: 150px minmax(0, 1fr); overflow-wrap: anywhere; }
+    @media (max-width: 480px) { .stepper { flex-wrap: wrap; } .kv { grid-template-columns: 1fr; } }
   </style>
 </head>
 <body>
@@ -316,6 +319,7 @@
   </aside>
 
   <main>
+  <p role="note" style="padding:1rem;border:1px solid var(--border);background:var(--bg-card)">Demo interface: sample tool behavior is not proof of a live deployment. Never enter secrets or sensitive customer data here.</p>
     <h1 class="tool-title" id="toolTitle"></h1>
     <p class="tool-sub" id="toolSub"></p>
 
